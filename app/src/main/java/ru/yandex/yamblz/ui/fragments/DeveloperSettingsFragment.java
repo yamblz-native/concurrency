@@ -14,11 +14,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import ru.yandex.yamblz.App;
-import ru.yandex.yamblz.R;
-import ru.yandex.yamblz.performance.AnyThread;
-import ru.yandex.yamblz.ui.presenters.DeveloperSettingsPresenter;
-import ru.yandex.yamblz.ui.views.DeveloperSettingsView;
 import com.github.pedrovgs.lynx.LynxActivity;
 import com.github.pedrovgs.lynx.LynxConfig;
 import com.jakewharton.processphoenix.ProcessPhoenix;
@@ -26,10 +21,13 @@ import com.jakewharton.processphoenix.ProcessPhoenix;
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
-import butterknife.Unbinder;
+import ru.yandex.yamblz.App;
+import ru.yandex.yamblz.R;
+import ru.yandex.yamblz.performance.AnyThread;
+import ru.yandex.yamblz.ui.presenters.DeveloperSettingsPresenter;
+import ru.yandex.yamblz.ui.views.DeveloperSettingsView;
 
 public class DeveloperSettingsFragment extends BaseFragment implements DeveloperSettingsView {
 
@@ -60,10 +58,6 @@ public class DeveloperSettingsFragment extends BaseFragment implements Developer
     @BindView(R.id.developer_settings_tiny_dancer_switch)
     Switch tinyDancerSwitch;
 
-    @SuppressWarnings("NullableProblems")
-    @NonNull
-    private Unbinder unbinder;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +73,6 @@ public class DeveloperSettingsFragment extends BaseFragment implements Developer
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        unbinder = ButterKnife.bind(this, view);
 
         presenter.bindView(this);
     }
@@ -191,7 +184,6 @@ public class DeveloperSettingsFragment extends BaseFragment implements Developer
     @Override
     public void onDestroyView() {
         presenter.unbindView(this);
-        unbinder.unbind();
         super.onDestroyView();
     }
 

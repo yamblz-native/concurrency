@@ -1,22 +1,35 @@
 package ru.yandex.yamblz.ui.fragments;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.View;
 
-import ru.yandex.yamblz.ApplicationModule;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ru.yandex.yamblz.App;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 @SuppressWarnings("PMD.AbstractClassWithoutAnyMethod")
 public abstract class BaseFragment extends Fragment {
 
-    @Inject
-    @Named(ApplicationModule.MAIN_THREAD_HANDLER)
-    Handler mainThreadHandler;
+    private Handler mainThreadHandler;
+    private Unbinder viewBinder;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mainThreadHandler = App.get(context).applicationComponent().mainThreadHandler();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        viewBinder = ButterKnife.bind(this, view);
+    }
 
     protected void runOnUiThreadIfFragmentAlive(@NonNull Runnable runnable) {
         if (Looper.myLooper() == Looper.getMainLooper() && isFragmentAlive()) {
@@ -32,6 +45,12 @@ public abstract class BaseFragment extends Fragment {
 
     private boolean isFragmentAlive() {
         return getActivity() != null && isAdded() && !isDetached() && getView() != null && !isRemoving();
+    }
+
+    @Override
+    public void onDestroyView() {
+        viewBinder.unbind();
+        super.onDestroyView();
     }
 
     @Override
