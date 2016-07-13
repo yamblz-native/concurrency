@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -19,8 +20,14 @@ import ru.yandex.yamblz.concurrency.PostConsumer;
 @SuppressWarnings("WeakerAccess")
 public class ContentFragment extends BaseFragment {
 
+
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
+
+    // Используем CountDownLatch, т.к. все что нужно сделать - это заблокировать выполнение
+    // PostConsumer, пока не выполнятся все 5 штук LoadProducer. Как только они выполнились
+    // и все счетчики протикали, поток PostConsumer возобновляет работу.
+    public static final CountDownLatch LATCH = new CountDownLatch(PRODUCERS_COUNT);
 
     @BindView(R.id.hello)
     TextView helloView;

@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import java.util.Set;
 
+import ru.yandex.yamblz.ui.fragments.ContentFragment;
+
 /**
  * Simple load producer thread; non-extensible
  *
@@ -24,10 +26,10 @@ public final class LoadProducer extends Thread {
     public void run() {
         super.run();
 
-        /* Synchronize via concurrent mechanics */
-
         final String result = new DownloadLatch().doWork();
         results.add(result);
+
+        ContentFragment.LATCH.countDown();
 
         onResult.run();
     }
