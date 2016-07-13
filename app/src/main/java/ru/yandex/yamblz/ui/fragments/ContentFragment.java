@@ -37,7 +37,7 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult).start();
         }
     }
 
