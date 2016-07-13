@@ -22,7 +22,7 @@ final class DownloadLatch {
     }
 
     @Nullable
-    final String doWork() {
+    String doWork() {
         SystemClock.sleep(random.nextInt((int) THREAD_SLEEP_DELAY) + 100);
         return UUID.randomUUID().toString();
     }

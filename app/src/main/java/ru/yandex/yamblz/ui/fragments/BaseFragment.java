@@ -35,6 +35,7 @@ public abstract class BaseFragment extends Fragment {
         if (Looper.myLooper() == Looper.getMainLooper() && isFragmentAlive()) {
             runnable.run();
         } else {
+            assert mainThreadHandler != null;
             mainThreadHandler.post(() -> {
                 if (isFragmentAlive()) {
                     runnable.run();
@@ -49,7 +50,9 @@ public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        viewBinder.unbind();
+        if (viewBinder != null) {
+            viewBinder.unbind();
+        }
         super.onDestroyView();
     }
 

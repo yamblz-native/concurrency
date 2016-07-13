@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 
 public final class PostConsumer extends Thread {
 
-    @NonNull private Runnable onFinish;
+    @NonNull private final Runnable onFinish;
 
     public PostConsumer(@NonNull Runnable onFinish) {
         this.onFinish = onFinish;

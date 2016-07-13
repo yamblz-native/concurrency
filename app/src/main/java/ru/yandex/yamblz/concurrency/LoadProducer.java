@@ -12,8 +12,8 @@ import java.util.Set;
 
 public final class LoadProducer extends Thread {
 
-    @NonNull private Set<String> results;
-    @NonNull private Runnable onResult;
+    @NonNull private final Set<String> results;
+    @NonNull private final Runnable onResult;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
         this.results = resultSet;

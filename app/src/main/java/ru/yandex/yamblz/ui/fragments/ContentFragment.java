@@ -6,35 +6,25 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
 
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 @SuppressWarnings("WeakerAccess")
 public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
+    private static final int PRODUCERS_COUNT = 5;
 
     @BindView(R.id.hello) TextView helloView;
 
-    private final int producersCount = 5;
-
     @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
-    @NonNull private final List<LoadProducer> tasks = new LinkedList<>();
-
-    /*dynamic*/ {
-        for (int i = 0; i < producersCount; i++) {
-            tasks.add(new LoadProducer(dataResults, this::postResult));
-        }
-    }
 
     @NonNull
     @Override
@@ -45,22 +35,23 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-
         new PostConsumer(this::postFinish).start();
-        for (LoadProducer producer : tasks) {
-            producer.start();
+        for (int i = 0; i < PRODUCERS_COUNT; i++) {
+            new LoadProducer(dataResults, this::postResult);
         }
     }
 
     final void postResult() {
-        helloView.setText(dataResults.size());
+        assert helloView != null;
+        helloView.setText(String.valueOf(dataResults.size()));
     }
 
     final void postFinish() {
-        if (dataResults.size() < producersCount) {
+        if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
+        assert helloView != null;
         helloView.setText(R.string.task_win);
     }
 }
