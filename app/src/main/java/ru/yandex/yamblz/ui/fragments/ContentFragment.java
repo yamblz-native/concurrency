@@ -22,9 +22,11 @@ public class ContentFragment extends BaseFragment {
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
 
-    @BindView(R.id.hello) TextView helloView;
+    @BindView(R.id.hello)
+    TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull
+    private final Set<String> dataResults = new LinkedHashSet<>();
 
     @NonNull
     @Override
@@ -37,13 +39,15 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult).start();
         }
     }
 
     final void postResult() {
-        assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(() -> {
+            assert helloView != null;
+            helloView.setText(String.valueOf(dataResults.size()));
+        });
     }
 
     final void postFinish() {
@@ -51,7 +55,10 @@ public class ContentFragment extends BaseFragment {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
-        assert helloView != null;
-        helloView.setText(R.string.task_win);
+        runOnUiThreadIfFragmentAlive(() -> {
+            assert helloView != null;
+            helloView.setText(R.string.task_win);
+
+        });
     }
 }
