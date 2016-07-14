@@ -8,8 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CyclicBarrier;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -21,6 +24,8 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
+    private final CyclicBarrier barrier = new CyclicBarrier(PRODUCERS_COUNT+1);
+    private final List<Thread> threads = new ArrayList<>();
 
     @BindView(R.id.hello) TextView helloView;
 
@@ -35,15 +40,19 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+        PostConsumer postConsumer=new PostConsumer(this::postFinish,barrier);
+        threads.add(postConsumer);
+        postConsumer.start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            LoadProducer loadProducer=new LoadProducer(dataResults,barrier, this::postResult);
+            threads.add(loadProducer);
+            loadProducer.start();
         }
     }
 
     final void postResult() {
         assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(()->helloView.setText(String.valueOf(dataResults.size())));
     }
 
     final void postFinish() {
@@ -52,6 +61,14 @@ public class ContentFragment extends BaseFragment {
         }
 
         assert helloView != null;
-        helloView.setText(R.string.task_win);
+        runOnUiThreadIfFragmentAlive(()->helloView.setText(R.string.task_win));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        for(Thread thread:threads){
+            thread.interrupt();
+        }
     }
 }
