@@ -1,6 +1,10 @@
 package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Simple result consumer thread; non-extensible
@@ -11,9 +15,11 @@ import android.support.annotation.NonNull;
 public final class PostConsumer extends Thread {
 
     @NonNull private final Runnable onFinish;
+    CyclicBarrier barrier;
 
-    public PostConsumer(@NonNull Runnable onFinish) {
+    public PostConsumer(@NonNull Runnable onFinish, CyclicBarrier barrier) {
         this.onFinish = onFinish;
+        this.barrier = barrier;
     }
 
     @Override
@@ -21,6 +27,11 @@ public final class PostConsumer extends Thread {
         super.run();
 
         /* Synchronize via concurrent mechanics */
+        try {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+        }
 
         onFinish.run();
     }
