@@ -12,6 +12,7 @@ import android.view.View;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ru.yandex.yamblz.App;
+import ru.yandex.yamblz.ApplicationComponent;
 
 @SuppressWarnings("PMD.AbstractClassWithoutAnyMethod")
 public abstract class BaseFragment extends Fragment {
@@ -44,7 +45,7 @@ public abstract class BaseFragment extends Fragment {
         }
     }
 
-    private boolean isFragmentAlive() {
+    protected boolean isFragmentAlive() {
         return getActivity() != null && isAdded() && !isDetached() && getView() != null && !isRemoving();
     }
 
@@ -60,5 +61,9 @@ public abstract class BaseFragment extends Fragment {
     public void onDestroy() {
         App.get(getContext()).applicationComponent().leakCanaryProxy().watch(this);
         super.onDestroy();
+    }
+
+    protected ApplicationComponent getAppComponent() {
+        return App.get(getContext()).applicationComponent();
     }
 }

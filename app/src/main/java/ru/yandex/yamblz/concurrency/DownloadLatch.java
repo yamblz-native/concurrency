@@ -2,6 +2,7 @@ package ru.yandex.yamblz.concurrency;
 
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.Random;
 import java.util.UUID;
@@ -23,7 +24,8 @@ final class DownloadLatch {
 
     @Nullable
     String doWork() {
-        SystemClock.sleep(random.nextInt((int) THREAD_SLEEP_DELAY) + 100);
+        long time = random.nextInt((int) THREAD_SLEEP_DELAY) + 100;
+        SystemClock.sleep(time);
         return UUID.randomUUID().toString();
     }
 }
