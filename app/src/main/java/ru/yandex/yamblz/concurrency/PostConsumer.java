@@ -29,10 +29,10 @@ public final class PostConsumer extends Thread {
         /* Synchronize via concurrent mechanics */
         try {
             loadingDone.await();
-            onFinish.run();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        onFinish.run();
     }
 }

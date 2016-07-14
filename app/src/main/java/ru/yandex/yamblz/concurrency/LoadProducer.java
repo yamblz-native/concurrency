@@ -33,9 +33,11 @@ public final class LoadProducer extends Thread {
         /* Synchronize via concurrent mechanics */
 
         final String result = new DownloadLatch().doWork();
-        results.add(result);
+        synchronized (results) {
+            results.add(result);
 
-        onResult.run();
+            onResult.run();
+        }
 
         loadingDone.countDown();
     }
