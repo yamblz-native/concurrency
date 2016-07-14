@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -33,18 +34,25 @@ public class ContentFragment extends BaseFragment {
         return inflater.inflate(R.layout.fragment_content, container, false);
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+
+        CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
+
+        new PostConsumer(this::postFinish, countDownLatch).start();
+
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult).start();
+            new LoadProducer(dataResults, this::postResult, countDownLatch).start();
         }
     }
+
 
     final void postResult() {
         runOnUiThreadIfFragmentAlive(() -> helloView.setText(String.valueOf(dataResults.size())));
     }
+
 
     final void postFinish() {
         if (dataResults.size() < PRODUCERS_COUNT) {
