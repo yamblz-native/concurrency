@@ -24,7 +24,7 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
-    private final CountDownLatch mCyclicBarrier = new CountDownLatch(PRODUCERS_COUNT);
+    private final CountDownLatch mCountDownLatch = new CountDownLatch(PRODUCERS_COUNT);
 
     @BindView(R.id.hello) TextView helloView;
 
@@ -44,9 +44,9 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish, mCyclicBarrier).start();
+        new PostConsumer(this::postFinish, mCountDownLatch).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult, mCyclicBarrier).start();
+            new LoadProducer(dataResults, this::postResult, mCountDownLatch).start();
         }
     }
 
