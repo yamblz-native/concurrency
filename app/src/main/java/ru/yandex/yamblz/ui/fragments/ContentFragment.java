@@ -1,6 +1,7 @@
 package ru.yandex.yamblz.ui.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -20,7 +21,7 @@ import ru.yandex.yamblz.concurrency.PostConsumer;
 public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
-    private static final int PRODUCERS_COUNT = 5;
+    public static final int PRODUCERS_COUNT = 5;
 
     @BindView(R.id.hello) TextView helloView;
 
@@ -41,11 +42,13 @@ public class ContentFragment extends BaseFragment {
         }
     }
 
+    @MainThread
     final void postResult() {
         assert helloView != null;
         helloView.setText(String.valueOf(dataResults.size()));
     }
 
+    @MainThread
     final void postFinish() {
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
