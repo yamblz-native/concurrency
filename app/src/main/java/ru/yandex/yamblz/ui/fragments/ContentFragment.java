@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -35,18 +36,30 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+        final CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
+
+        new PostConsumer(this::postFinish, getAppComponent().mainThreadHandler(), countDownLatch).start();
+
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult, getAppComponent().mainThreadHandler(),
+                    countDownLatch).start();
         }
     }
 
     final void postResult() {
+        if(!isFragmentAlive()) {
+            return;
+        }
+
         assert helloView != null;
         helloView.setText(String.valueOf(dataResults.size()));
     }
 
     final void postFinish() {
+        if(!isFragmentAlive()) {
+            return;
+        }
+
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }

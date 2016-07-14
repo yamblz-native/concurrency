@@ -1,8 +1,14 @@
 package ru.yandex.yamblz.concurrency;
 
+import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+
+import javax.inject.Inject;
 
 /**
  * Simple load producer thread; non-extensible
@@ -14,10 +20,15 @@ public final class LoadProducer extends Thread {
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
+    @NonNull private final Handler uiHandler;
+    @NonNull private final CountDownLatch countDownLatch;
 
-    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
+    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
+                        @NonNull Handler uiHandler, @NonNull CountDownLatch countDownLatch) {
         this.results = resultSet;
         this.onResult = onResult;
+        this.uiHandler = uiHandler;
+        this.countDownLatch = countDownLatch;
     }
 
     @Override
@@ -27,8 +38,12 @@ public final class LoadProducer extends Thread {
         /* Synchronize via concurrent mechanics */
 
         final String result = new DownloadLatch().doWork();
-        results.add(result);
 
-        onResult.run();
+        synchronized (results) {
+            results.add(result);
+        }
+
+        uiHandler.post(onResult::run);
+        countDownLatch.countDown();
     }
 }
