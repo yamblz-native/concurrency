@@ -36,6 +36,7 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        dataResults.clear();
         CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
         new PostConsumer(countDownLatch, this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
