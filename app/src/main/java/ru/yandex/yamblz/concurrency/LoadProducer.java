@@ -56,4 +56,8 @@ public final class LoadProducer extends Thread {
     public static int getLoadedProducers() {
         return loadedProducers;
     }
+
+    public static void loadedProducersSetToZero() {
+        loadedProducers = 0;
+    }
 }

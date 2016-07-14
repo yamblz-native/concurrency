@@ -23,19 +23,25 @@ public class ContentFragment extends BaseFragment {
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     public static final int PRODUCERS_COUNT = 5;
 
-    @BindView(R.id.hello) TextView helloView;
+    @BindView(R.id.hello)
+    TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull
+    private final Set<String> dataResults = new LinkedHashSet<>();
 
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setRetainInstance(true);
         return inflater.inflate(R.layout.fragment_content, container, false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        LoadProducer.loadedProducersSetToZero();
+        dataResults.clear();
+
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
             new LoadProducer(dataResults, this::postResult).start();
