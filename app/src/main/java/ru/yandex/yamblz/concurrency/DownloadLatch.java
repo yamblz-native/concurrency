@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * Task that loads some data and freeze the thread it runs in
+ * Task that loads some data and freezes the thread it runs in
  *
  * @author archinamon on 13/07/16.
  */
