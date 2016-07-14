@@ -2,6 +2,8 @@ package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * Simple result consumer thread; non-extensible
  *
@@ -11,9 +13,11 @@ import android.support.annotation.NonNull;
 public final class PostConsumer extends Thread {
 
     @NonNull private final Runnable onFinish;
+    private final CountDownLatch threadsCount;
 
-    public PostConsumer(@NonNull Runnable onFinish) {
+    public PostConsumer( @NonNull Runnable onFinish, CountDownLatch threadsCount ) {
         this.onFinish = onFinish;
+        this.threadsCount = threadsCount;
     }
 
     @Override
@@ -21,7 +25,13 @@ public final class PostConsumer extends Thread {
         super.run();
 
         /* Synchronize via concurrent mechanics */
+        try {
+            threadsCount.await();
+            onFinish.run();
 
-        onFinish.run();
+        } catch ( InterruptedException e ) {
+            e.printStackTrace();
+        }
+
     }
 }
