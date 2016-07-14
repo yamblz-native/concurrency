@@ -8,8 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -24,7 +25,7 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @NonNull
     @Override
@@ -37,13 +38,12 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult).start();
         }
     }
 
     final void postResult() {
-        assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(() -> helloView.setText(String.valueOf(dataResults.size())));
     }
 
     final void postFinish() {
@@ -51,7 +51,6 @@ public class ContentFragment extends BaseFragment {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
-        assert helloView != null;
-        helloView.setText(R.string.task_win);
+        runOnUiThreadIfFragmentAlive(() -> helloView.setText(R.string.task_win));
     }
 }
