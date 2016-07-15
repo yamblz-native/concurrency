@@ -18,7 +18,7 @@ public class CountDownLatchImpl extends Synchronizer {
 
 
     @Override
-    public void customSync() {
+    protected void customSync() {
         CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
 
         for (int i = 0; i < PRODUCERS_COUNT; i++) {

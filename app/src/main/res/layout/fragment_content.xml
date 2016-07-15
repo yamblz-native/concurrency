@@ -15,18 +15,12 @@
 
     <Button
         android:id="@+id/count_down_latch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/count_down_latch"
-        android:textAllCaps="false" />
+        style="@style/Button"
+        android:text="@string/count_down_latch" />
 
     <Button
         android:id="@+id/semaphore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/semaphore"
-        android:textAllCaps="false" />
+        style="@style/Button"
+        android:text="@string/semaphore" />
 
 </LinearLayout>
