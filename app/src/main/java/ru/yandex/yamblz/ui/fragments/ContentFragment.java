@@ -45,12 +45,12 @@ public class ContentFragment extends BaseFragment {
         }
     }
 
-    final synchronized void postResult() {
+    final void postResult() {
         assert helloView != null;
         runOnUiThreadIfFragmentAlive(() -> helloView.setText(String.valueOf(dataResults.size())));
     }
 
-    final synchronized void postFinish() {
+    final void postFinish() {
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
