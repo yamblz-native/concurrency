@@ -1,5 +1,7 @@
 package ru.yandex.yamblz.ui.fragments;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.Phaser;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -32,18 +35,23 @@ public class ContentFragment extends BaseFragment {
         return inflater.inflate(R.layout.fragment_content, container, false);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+        Phaser phaser = new Phaser(PRODUCERS_COUNT+1);
+        new PostConsumer(this::postFinish, phaser).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(phaser, dataResults, this::postResult).start();
         }
+//        phaser.arriveAndDeregister();
     }
 
     final void postResult() {
         assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(()-> {
+            helloView.setText(String.valueOf(dataResults.size()));
+        });
     }
 
     final void postFinish() {
@@ -51,7 +59,8 @@ public class ContentFragment extends BaseFragment {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
-        assert helloView != null;
+        runOnUiThreadIfFragmentAlive(()->{
         helloView.setText(R.string.task_win);
+        });
     }
 }
