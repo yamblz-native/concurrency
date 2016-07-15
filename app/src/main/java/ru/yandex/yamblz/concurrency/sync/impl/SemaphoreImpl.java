@@ -1,7 +1,7 @@
 package ru.yandex.yamblz.concurrency.sync.impl;
 
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
@@ -10,51 +10,52 @@ import ru.yandex.yamblz.concurrency.sync.Synchronizer;
 
 import static ru.yandex.yamblz.ui.fragments.ContentFragment.PRODUCERS_COUNT;
 
-public class CountDownLatchImpl extends Synchronizer {
+public class SemaphoreImpl extends Synchronizer {
 
-    public CountDownLatchImpl(SyncParameters params) {
+    public SemaphoreImpl(SyncParameters params) {
         super(params);
     }
 
 
     @Override
-    public void customSync() {
-        CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
+    protected void customSync() throws InterruptedException {
+        Semaphore semaphore = new Semaphore(PRODUCERS_COUNT);
 
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new Producer(params.dataResults, params.postResult, countDownLatch).start();
+            semaphore.acquire();
+            new Producer(params.dataResults, params.postResult, semaphore).start();
         }
 
-        new Consumer(params.postFinish, countDownLatch).start();
+        new Consumer(params.postFinish, semaphore).start();
     }
 
 
     private static final class Producer extends LoadProducer {
-        final CountDownLatch countDownLatch;
+        private final Semaphore semaphore;
 
-        public Producer(Set<String> resultSet, Runnable onResult, CountDownLatch countDownLatch) {
+        public Producer(Set<String> resultSet, Runnable onResult, Semaphore semaphore) {
             super(resultSet, onResult);
-            this.countDownLatch = countDownLatch;
+            this.semaphore = semaphore;
         }
 
         @Override
         public void synchronize() {
-            countDownLatch.countDown();
+            semaphore.release();
         }
     }
 
 
     private static final class Consumer extends PostConsumer {
-        private final CountDownLatch countDownLatch;
+        private final Semaphore semaphore;
 
-        public Consumer(Runnable onFinish, CountDownLatch countDownLatch) {
+        public Consumer(Runnable onFinish, Semaphore semaphore) {
             super(onFinish);
-            this.countDownLatch = countDownLatch;
+            this.semaphore = semaphore;
         }
 
         @Override
         protected void synchronize() throws InterruptedException {
-            countDownLatch.await();
+            semaphore.acquire(PRODUCERS_COUNT);
         }
     }
 }

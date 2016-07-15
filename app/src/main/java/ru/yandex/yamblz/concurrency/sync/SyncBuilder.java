@@ -6,6 +6,7 @@ import java.security.InvalidParameterException;
 import java.util.Set;
 
 import ru.yandex.yamblz.concurrency.sync.impl.CountDownLatchImpl;
+import ru.yandex.yamblz.concurrency.sync.impl.SemaphoreImpl;
 
 /**
  * From the architectural standpoint it is better to refactor this
@@ -26,12 +27,15 @@ public final class SyncBuilder {
         switch (type) {
             case COUNT_DOWN_LATCH:
                 return new CountDownLatchImpl(params);
+            case SEMAPHORE:
+                return new SemaphoreImpl(params);
             default:
                 throw new InvalidParameterException();
         }
     }
 
     public enum Type {
-        COUNT_DOWN_LATCH
+        COUNT_DOWN_LATCH,
+        SEMAPHORE
     }
 }

@@ -13,7 +13,9 @@ public abstract class Synchronizer {
 
     public void sync() {
         disableButtons();
-        customSync();
+        try {
+            customSync();
+        } catch (InterruptedException ignored) { /* */ }
     }
 
     private void disableButtons() {
@@ -25,5 +27,5 @@ public abstract class Synchronizer {
         }
     }
 
-    protected abstract void customSync();
+    protected abstract void customSync() throws InterruptedException;
 }

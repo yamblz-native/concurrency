@@ -21,11 +21,13 @@ public abstract class PostConsumer extends Thread {
     public void run() {
         super.run();
 
-        synchronize();
+        try {
+            synchronize();
+        } catch (InterruptedException ignored) { /* */ }
 
         onFinish.run();
     }
 
 
-    protected abstract void synchronize();
+    protected abstract void synchronize() throws InterruptedException;
 }

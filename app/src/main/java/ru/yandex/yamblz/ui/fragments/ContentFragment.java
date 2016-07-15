@@ -50,6 +50,12 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @OnClick(R.id.semaphore)
+    public void semaphoreImpl() {
+        syncBuilder.build(Type.SEMAPHORE).sync();
+    }
+
+
     final void postResult() {
         runOnUiThreadIfFragmentAlive(() -> helloView.setText(String.valueOf(dataResults.size())));
     }
