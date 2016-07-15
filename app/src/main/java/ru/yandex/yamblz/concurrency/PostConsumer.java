@@ -2,6 +2,8 @@ package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
 
+import ru.yandex.yamblz.ui.fragments.ContentFragment;
+
 /**
  * Simple result consumer thread; non-extensible
  *
@@ -20,7 +22,11 @@ public final class PostConsumer extends Thread {
     public void run() {
         super.run();
 
-        /* Synchronize via concurrent mechanics */
+        try {
+            ContentFragment.cdLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         onFinish.run();
     }
