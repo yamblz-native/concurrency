@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
@@ -35,9 +36,9 @@ public class ContentFragment extends BaseFragment {
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    @OnClick(R.id.count_down_latch)
+    public void countDownLatchImpl(View view) {
+        view.setEnabled(false);
 
         CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
 
