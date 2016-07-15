@@ -11,19 +11,20 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import ru.yandex.yamblz.R;
-import ru.yandex.yamblz.concurrency.LoadProducer;
-import ru.yandex.yamblz.concurrency.PostConsumer;
+import ru.yandex.yamblz.concurrency.sync.SyncBuilder;
+import ru.yandex.yamblz.concurrency.sync.SyncBuilder.Type;
 
 @SuppressWarnings("WeakerAccess")
 public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
-    private static final int PRODUCERS_COUNT = 5;
+    public static final int PRODUCERS_COUNT = 5;
+
+    private final SyncBuilder syncBuilder = new SyncBuilder();
 
     @BindView(R.id.hello) TextView helloView;
 
@@ -36,17 +37,16 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        syncBuilder.init(dataResults, this::postResult, this::postFinish, (ViewGroup) getView());
+    }
+
+
     @OnClick(R.id.count_down_latch)
-    public void countDownLatchImpl(View view) {
-        view.setEnabled(false);
-
-        CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
-
-        new PostConsumer(this::postFinish, countDownLatch).start();
-
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult, countDownLatch).start();
-        }
+    public void countDownLatchImpl() {
+        syncBuilder.build(Type.COUNT_DOWN_LATCH).sync();
     }
 
 
