@@ -21,6 +21,8 @@ import butterknife.BindView;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
+import ru.yandex.yamblz.util.BooleanCondition;
+
 import static ru.yandex.yamblz.util.AndroidUtils.setText;
 
 @SuppressWarnings("WeakerAccess")
@@ -42,7 +44,7 @@ public class ContentFragment extends BaseFragment {
 
     @NonNull private CyclicBarrier cyclicBarrier;
 
-    private boolean isDone = false;
+    private BooleanCondition isDone = new BooleanCondition(false);
 
     @NonNull
     @Override
@@ -53,7 +55,9 @@ public class ContentFragment extends BaseFragment {
                 dataResults = (CopyOnWriteArraySet<String>) savedInstanceState.getSerializable(DATA_RESULTS_KEY);
             }
 
-            isDone = savedInstanceState.getBoolean(IS_DONE_KEY);
+            if(savedInstanceState.getSerializable(IS_DONE_KEY) != null) {
+                isDone = (BooleanCondition) savedInstanceState.getSerializable(IS_DONE_KEY);
+            }
         }
 
         return inflater.inflate(R.layout.fragment_content, container, false);
@@ -64,12 +68,11 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
 
         if(dataResults != null) {
-            if(helloView != null) {
-                if(isDone) {
-                    setFinishText();
-                } else {
-                    setResultText();
-                }
+
+            if(isDone.getValue()) {
+                setFinishText();
+            } else {
+                setResultText();
             }
             return;
         }
@@ -96,13 +99,14 @@ public class ContentFragment extends BaseFragment {
             e.printStackTrace();
             return;
         }
+
     }
 
     private final void postFinish() {
 
         Log.d(LOG_TAG, "Working consumer");
 
-        isDone = true;
+        isDone.setValue(true);
 
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
@@ -117,17 +121,18 @@ public class ContentFragment extends BaseFragment {
         super.onSaveInstanceState(outState);
 
         outState.putSerializable(DATA_RESULTS_KEY, dataResults);
-        outState.putBoolean(IS_DONE_KEY, isDone);
-
+        outState.putSerializable(IS_DONE_KEY, isDone);
     }
 
     private void setFinishText() {
+
         if(helloView != null) {
             setText(getActivity(), helloView, R.string.task_win);
         }
     }
 
     private void setResultText() {
+
         if(helloView != null) {
             setText(getActivity(), helloView, String.valueOf(dataResults.size()));
         }
