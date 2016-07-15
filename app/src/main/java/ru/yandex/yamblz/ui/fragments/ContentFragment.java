@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Phaser;
 
 import butterknife.BindView;
@@ -27,7 +28,7 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = new ConcurrentSkipListSet<>();
 
     @NonNull
     @Override
