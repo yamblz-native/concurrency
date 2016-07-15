@@ -7,9 +7,7 @@
     <TextView
         android:id="@+id/hello"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/content"
-        android:textSize="42sp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
         android:text="@string/content"
