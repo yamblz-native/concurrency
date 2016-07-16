@@ -36,12 +36,14 @@ public final class LoadProducer extends Thread {
     @Override
     public void run() {
         super.run();
+		
         /* Synchronize via concurrent mechanics */
 
         lock.lock();
         try{
             final String result = new DownloadLatch().doWork();
             results.add(result);
+			
             onResult.run();
             if (results.size()>=PRODUCERS_COUNT)
                 allStart.signalAll();
