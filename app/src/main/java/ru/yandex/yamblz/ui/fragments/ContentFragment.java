@@ -12,8 +12,6 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -26,7 +24,7 @@ public class ContentFragment extends BaseFragment {
 
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
-    public static final int PRODUCERS_COUNT = 5;
+    private static final int PRODUCERS_COUNT = 5;
 
     private long startTime, endTime;
 
@@ -35,9 +33,6 @@ public class ContentFragment extends BaseFragment {
 
     @NonNull
     private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-    public static Semaphore SEMAPHORE = new Semaphore(1, true);
-
 
     @NonNull
     @Override
@@ -50,18 +45,10 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        // Semaphore не слишком подходит для решения данной задачи, и другие разработчики могут быть
-        // немного удивлены вашим выбором, хотя и не слишком сильно.
-        // Для решения данной задачи через семафор можно ограничить доступ к ресурсу и позваолить
-        // только одному потоку одновременно выполняться. Но в этом случае решение будет последовательным
-        // и очень медленным. Не надо так.
-        // Кроме того, нет гарантии, что потоки будут выполнены именно в той последовательности,
-        // в которой они были созданы, а значит, нужно вводить дополнительную логику.
-
+        new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult, new PostConsumer(this::postFinish)).start();
+            new LoadProducer(dataResults, this::postResult);
         }
-
 
     }
 

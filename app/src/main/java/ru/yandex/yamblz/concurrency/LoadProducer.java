@@ -4,10 +4,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-
-import ru.yandex.yamblz.ui.fragments.ContentFragment;
 
 /**
  * Simple load producer thread; non-extensible
@@ -21,13 +17,11 @@ public final class LoadProducer extends Thread {
     private final Set<String> results;
     @NonNull
     private final Runnable onResult;
-    private PostConsumer consumer;
 
 
-    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult, PostConsumer consumer) {
+    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
         this.results = resultSet;
         this.onResult = onResult;
-        this.consumer = consumer;
     }
 
     @Override
@@ -37,23 +31,11 @@ public final class LoadProducer extends Thread {
 
         /* Synchronize via concurrent mechanics */
 
-        try {
-            ContentFragment.SEMAPHORE.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         final String result = new DownloadLatch().doWork();
         results.add(result);
 
         Log.d("Producer", "Producer finished working, results size = " + results.size());
         onResult.run();
-        ContentFragment.SEMAPHORE.release();
-
-        if (ContentFragment.PRODUCERS_COUNT == results.size()) {
-            consumer.start();
-        }
-
 
     }
 }
