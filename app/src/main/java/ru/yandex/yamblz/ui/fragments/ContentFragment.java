@@ -40,7 +40,7 @@ public class ContentFragment extends BaseFragment {
                 = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
         consumerThread.start();
 
-        // Let post consumer to make LoadProducers
+        // Let post consumer make LoadProducers
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
             new LoadProducer(dataResults, this::postResult,
                     consumerThread.getCyclicBarrier()).start();

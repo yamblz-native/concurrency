@@ -1,8 +1,9 @@
 package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
-import java.lang.ref.WeakReference;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import ru.yandex.yamblz.ui.fragments.ContentFragment;
@@ -14,21 +15,24 @@ import ru.yandex.yamblz.ui.fragments.ContentFragment;
  */
 
 public final class PostConsumer extends Thread {
+    private final String TAG = this.getClass().getSimpleName();
 
     @NonNull
     private final Runnable onFinish;
     @NonNull
     private final int loadProducersNumber; // Number of load producers
     @NonNull
-    private final WeakReference<ContentFragment> fragment;
+    private ContentFragment fragment;
+    @NonNull
     private CyclicBarrier cyclicBarrier;
 
 
     public PostConsumer(@NonNull Runnable onFinish,
-                        int loadProducersNumber, ContentFragment fragment) {
+                        int loadProducersNumber, @NonNull ContentFragment fragment) {
         this.onFinish = onFinish;
         this.loadProducersNumber = loadProducersNumber;
-        this.fragment = new WeakReference<>(fragment);
+        this.fragment = fragment;
+        this.cyclicBarrier = new CyclicBarrier(loadProducersNumber + 1);
     }
 
 
@@ -36,19 +40,18 @@ public final class PostConsumer extends Thread {
     public void run() {
         super.run();
         /* Synchronize via concurrent mechanics */
-        this.cyclicBarrier = new CyclicBarrier(loadProducersNumber,
-                () -> fragment.get().runOnUiThreadIfFragmentAlive(onFinish));
-    }
+        try {
+            cyclicBarrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Consumer thread was successfully interrupted");
+        }
 
+        fragment.runOnUiThreadIfFragmentAlive(onFinish);
+    }
 
     @NonNull
     public CyclicBarrier getCyclicBarrier() {
-        // Just for safety reasons
-        if (cyclicBarrier == null) {
-            String detailMessage = "Run consumer thread before initializing and running producers";
-            throw new IllegalStateException(detailMessage);
-        }
-
         return cyclicBarrier;
     }
 }

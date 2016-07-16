@@ -18,10 +18,10 @@ public final class LoadProducer extends Thread {
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
-    @NonNull private final CyclicBarrier cyclicBarrier;
+    private final CyclicBarrier cyclicBarrier;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
-        @NonNull CyclicBarrier cyclicBarrier) {
+        CyclicBarrier cyclicBarrier) {
         this.results = resultSet;
         this.onResult = onResult;
         this.cyclicBarrier = cyclicBarrier;
@@ -32,7 +32,6 @@ public final class LoadProducer extends Thread {
         super.run();
 
         /* Synchronize via concurrent mechanics */
-
         final String result = new DownloadLatch().doWork();
         results.add(result);
 
@@ -41,6 +40,13 @@ public final class LoadProducer extends Thread {
 
         /* Waiting for other threads */
         try {
+            // Some kind of foolproof
+            if (cyclicBarrier == null) {
+                String detailMessage = "Run and initialize consumer thread" +
+                        "before initializing and running producers";
+                throw new IllegalStateException(detailMessage);
+            }
+
             cyclicBarrier.await();
         } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
