@@ -73,6 +73,11 @@
                 style="@style/Button"
                 android:text="@string/wait_notify" />
 
+            <Button
+                android:id="@+id/uncaught_exception_handler"
+                style="@style/Button"
+                android:text="@string/uncaught_exception_handler" />
+
         </LinearLayout>
 
     </ScrollView>

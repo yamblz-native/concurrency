@@ -118,4 +118,10 @@ public class ContentFragment extends BaseFragment {
     public void waitNotifyImpl() {
         syncBuilder.build(Type.WAIT_NOTIFY).sync();
     }
+
+
+    @OnClick(R.id.uncaught_exception_handler)
+    public void uncaughtExceptionHandlerImpl() {
+        syncBuilder.build(Type.UNCAUGHT_EXCEPTION_HANDLER).sync();
+    }
 }

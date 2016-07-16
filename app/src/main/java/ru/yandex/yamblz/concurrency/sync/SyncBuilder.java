@@ -14,6 +14,7 @@ import ru.yandex.yamblz.concurrency.sync.impl.JoinImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.LockImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.PhaserImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.SemaphoreImpl;
+import ru.yandex.yamblz.concurrency.sync.impl.UncaughtExceptionHandlerImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.WaitNotifyImpl;
 
 /**
@@ -53,6 +54,8 @@ public final class SyncBuilder {
                 return new JoinImpl(params);
             case WAIT_NOTIFY:
                 return new WaitNotifyImpl(params);
+            case UNCAUGHT_EXCEPTION_HANDLER:
+                return new UncaughtExceptionHandlerImpl(params);
             default:
                 throw new InvalidParameterException();
         }
@@ -69,5 +72,6 @@ public final class SyncBuilder {
         LOCK,
         JOIN,
         WAIT_NOTIFY,
+        UNCAUGHT_EXCEPTION_HANDLER,
     }
 }
