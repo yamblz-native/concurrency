@@ -3,6 +3,7 @@ package ru.yandex.yamblz.ui.activities;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,11 +26,20 @@ public class MainActivity extends BaseActivity {
         App.get(this).applicationComponent().inject(this);
 
         setContentView(viewModifier.modify(getLayoutInflater().inflate(R.layout.activity_main, null)));
+        FragmentManager fm = getSupportFragmentManager();
 
+        ContentFragment fragment = (ContentFragment) fm.findFragmentByTag("fragment");
+
+        if (fragment == null) {
+            fragment = new ContentFragment();
+            fragment.setRetainInstance(true);
+            fm.beginTransaction().add(fragment, "fragment").commit();
+
+        }
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.main_frame_layout, new ContentFragment())
+                    .replace(R.id.main_frame_layout, fragment)
                     .commit();
         }
     }

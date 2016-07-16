@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -24,22 +26,42 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = Collections.synchronizedSet(new LinkedHashSet<>());
 
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_content, container, false);
+        View inflate = inflater.inflate(R.layout.fragment_content, container, false);
+        if (savedInstanceState != null && savedInstanceState.containsKey("text")) {
+            TextView view = (TextView)inflate.findViewById(R.id.hello);
+            view.setText(savedInstanceState.getCharSequence("text"));
+        }
+        return inflate;
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequence("text", helloView.getText());
+    }
+
+
+    private boolean isLoading = false;
+    @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
-        }
+        if (!isLoading) startLoading();
     }
+
+    private void startLoading() {
+        CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
+        new PostConsumer(this::postFinish, countDownLatch).start();
+        for (int i = 0; i < PRODUCERS_COUNT; i++) {
+            new LoadProducer(dataResults, this::postResult, countDownLatch).start();
+        }
+        isLoading = true;
+    }
+
 
     final void postResult() {
         assert helloView != null;
@@ -53,5 +75,8 @@ public class ContentFragment extends BaseFragment {
 
         assert helloView != null;
         helloView.setText(R.string.task_win);
+        helloView.invalidate();
     }
+
+
 }
