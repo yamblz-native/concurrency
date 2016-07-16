@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import ru.yandex.yamblz.ui.fragments.ContentFragment;
-
 /**
  * Simple load producer thread; non-extensible
  *
@@ -18,18 +16,16 @@ import ru.yandex.yamblz.ui.fragments.ContentFragment;
  */
 
 public final class LoadProducer extends Thread {
-    private final String TAG = this.getClass().getSimpleName();
+    private static final String TAG = LoadProducer.class.getSimpleName();
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
-    @NonNull private ContentFragment contentFragment;
     @NonNull private final CyclicBarrier cyclicBarrier;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
-                        @NonNull CyclicBarrier cyclicBarrier, @NonNull ContentFragment contentFragment) {
+                        @NonNull CyclicBarrier cyclicBarrier) {
         this.results = resultSet;
         this.onResult = onResult;
-        this.contentFragment = contentFragment;
         this.cyclicBarrier = cyclicBarrier;
     }
 

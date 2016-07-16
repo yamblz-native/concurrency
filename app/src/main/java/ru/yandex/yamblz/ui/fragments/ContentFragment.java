@@ -49,7 +49,7 @@ public class ContentFragment extends BaseFragment {
         /* Creating producers threads */
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
             LoadProducer loadProducer = new LoadProducer(dataResults, this::postResult,
-                    consumerThread.getCyclicBarrier(), this);
+                    consumerThread.getCyclicBarrier());
             threads.add(loadProducer);
             loadProducer.start();
         }

@@ -15,18 +15,16 @@ import ru.yandex.yamblz.ui.fragments.ContentFragment;
  */
 
 public final class PostConsumer extends Thread {
-    private final String TAG = this.getClass().getSimpleName();
+    private final static String TAG = PostConsumer.class.getSimpleName();
 
     @NonNull private final Runnable onFinish;
-    @NonNull private final int loadProducersNumber; // Number of load producers
-    @NonNull private ContentFragment fragment;
-    @NonNull private CyclicBarrier cyclicBarrier;
+    @NonNull private final ContentFragment fragment;
+    @NonNull private final CyclicBarrier cyclicBarrier;
 
 
     public PostConsumer(@NonNull Runnable onFinish,
                         int loadProducersNumber, @NonNull ContentFragment fragment) {
         this.onFinish = onFinish;
-        this.loadProducersNumber = loadProducersNumber;
         this.fragment = fragment;
         this.cyclicBarrier = new CyclicBarrier(loadProducersNumber + 1);
     }
