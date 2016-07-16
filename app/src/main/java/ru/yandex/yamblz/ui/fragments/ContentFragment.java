@@ -16,12 +16,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
+import ru.yandex.yamblz.concurrency.ProducersThread;
 import ru.yandex.yamblz.concurrency.WaitNotifyLock;
 
 @SuppressWarnings("WeakerAccess")
@@ -30,8 +30,6 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
-
-    private long startTime, endTime;
 
     @BindView(R.id.hello)
     TextView helloView;
@@ -47,23 +45,14 @@ public class ContentFragment extends BaseFragment {
 
     @Override
     public void onResume() {
+        // TODO: Сделать логирование, чекнуть мемори и время выполнения
         super.onResume();
-        startTime = System.nanoTime();
+        Log.d(Calendar.getInstance().getTime().toString(), "Fragment starts threading");
+        ProducersThread producersThread = new ProducersThread(PRODUCERS_COUNT, dataResults, this::postResult);
+        producersThread.start();
+        PostConsumer consumer = new PostConsumer(producersThread, this::postFinish);
+        consumer.start();
 
-        // Использовать синхронизатор - это довольно просто. А что если попробовать без него?
-        // Можем использовать системные вызовы wait/notify и join, заодно проверим, что будет выполняться
-        // быстрее.
-
-        // Для реализации синхронизации через wait / notify, можно использовать объект dataResults,
-        // и проверять его размер, либо написать свой объект со счетчиком операций и проверять, сколько
-        // операций было выполнено (ничего не напоминает?))
-        if (dataResults.size() < PRODUCERS_COUNT) {
-            WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
-            new PostConsumer(this::postFinish, locker).start();
-            for (int i = 0; i < PRODUCERS_COUNT; i++) {
-                new LoadProducer(dataResults, locker, this::postResult).start();
-            }
-        }
     }
 
     final void postResult() {
@@ -77,9 +66,6 @@ public class ContentFragment extends BaseFragment {
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
-
-        endTime = System.nanoTime();
-        Log.d("Execution time", String.valueOf(TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS) + "ms"));
 
         runOnUiThreadIfFragmentAlive(() -> {
             assert helloView != null;
