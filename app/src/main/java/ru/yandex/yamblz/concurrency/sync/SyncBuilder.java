@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import java.security.InvalidParameterException;
 import java.util.Set;
 
+import ru.yandex.yamblz.concurrency.sync.impl.BlockingQueueImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.CountDownLatchImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.CyclicBarrierImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.ExchangerImpl;
@@ -42,6 +43,8 @@ public final class SyncBuilder {
                 return new PhaserImpl(params);
             case EXCHANGER:
                 return new ExchangerImpl(params);
+            case BLOCKING_QUEUE:
+                return new BlockingQueueImpl(params);
             case FUTURE:
                 return new FutureImpl(params);
             case LOCK:
@@ -61,6 +64,7 @@ public final class SyncBuilder {
         CYCLIC_BARRIER,
         PHASER,
         EXCHANGER,
+        BLOCKING_QUEUE,
         FUTURE,
         LOCK,
         JOIN,

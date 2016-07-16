@@ -90,6 +90,12 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @OnClick(R.id.blocking_queue)
+    public void blockingQueueImpl() {
+        syncBuilder.build(Type.BLOCKING_QUEUE).sync();
+    }
+
+
     @OnClick(R.id.future)
     public void futureImpl() {
         syncBuilder.build(Type.FUTURE).sync();

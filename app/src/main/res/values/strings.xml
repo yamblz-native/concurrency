@@ -10,6 +10,7 @@
     <string name="cyclic_barrier">CyclicBarrier</string>
     <string name="phaser">Phaser</string>
     <string name="exchanger">Exchanger</string>
+    <string name="blocking_queue">BlockingQueue</string>
     <string name="future">Future</string>
     <string name="lock">Lock</string>
     <string name="join">join()</string>
