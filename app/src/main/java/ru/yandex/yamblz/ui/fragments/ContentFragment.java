@@ -5,14 +5,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Phaser;
 
 import butterknife.BindView;
@@ -29,7 +28,8 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull
+    private final Set<String> dataResults = new ConcurrentSkipListSet<>();
 
     @NonNull
     @Override
