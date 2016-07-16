@@ -35,9 +35,14 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+
+        PostConsumer consumerThread
+                = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
+        consumerThread.start();
+
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult,
+                    consumerThread.getCyclicBarrier(), this).start();
         }
     }
 
@@ -53,5 +58,11 @@ public class ContentFragment extends BaseFragment {
 
         assert helloView != null;
         helloView.setText(R.string.task_win);
+    }
+
+    @Override
+    // Not sure if that's ok
+    public void runOnUiThreadIfFragmentAlive(@NonNull Runnable runnable) {
+        super.runOnUiThreadIfFragmentAlive(runnable);
     }
 }
