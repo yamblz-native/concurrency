@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
 
 import butterknife.BindView;
@@ -36,7 +39,7 @@ public class ContentFragment extends BaseFragment {
     TextView helloView;
 
     @NonNull
-    private final Set<String> dataResults = new LinkedHashSet<>();
+    private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @NonNull
     @Override
