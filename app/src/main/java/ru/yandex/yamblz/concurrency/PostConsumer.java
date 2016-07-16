@@ -29,7 +29,7 @@ public class PostConsumer extends Thread {
     }
 
 
-    protected void synchronize() throws InterruptedException {
+    protected void synchronize() throws Exception {
         // Empty or overridden
     }
 }

@@ -49,6 +49,11 @@
                 android:text="@string/exchanger" />
 
             <Button
+                android:id="@+id/future"
+                style="@style/Button"
+                android:text="@string/future" />
+
+            <Button
                 android:id="@+id/lock"
                 style="@style/Button"
                 android:text="@string/lock" />

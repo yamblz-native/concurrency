@@ -90,6 +90,12 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @OnClick(R.id.future)
+    public void futureImpl() {
+        syncBuilder.build(Type.FUTURE).sync();
+    }
+
+
     @OnClick(R.id.lock)
     public void lockImpl() {
         syncBuilder.build(Type.LOCK).sync();
