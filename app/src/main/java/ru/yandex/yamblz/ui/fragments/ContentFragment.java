@@ -41,6 +41,10 @@ public class ContentFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
 
+        // Do nothing if we are already doing some job
+        if (!dataResults.isEmpty())
+            return;
+
         /* Creating consumer thread */
         consumerThread = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
         threads.add(consumerThread);
@@ -57,22 +61,22 @@ public class ContentFragment extends BaseFragment {
 
     final void postResult() {
         assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(() -> helloView.setText(String.valueOf(dataResults.size())));
     }
 
     final void postFinish() {
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
+        dataResults.clear();
 
         assert helloView != null;
-        helloView.setText(R.string.task_win);
+        runOnUiThreadIfFragmentAlive(() -> helloView.setText(R.string.task_win));
     }
 
     @Override
-    // Not sure if that's ok
-    public void runOnUiThreadIfFragmentAlive(@NonNull Runnable runnable) {
-        super.runOnUiThreadIfFragmentAlive(runnable);
+    public void onPause() {
+        super.onPause();
     }
 
     @Override

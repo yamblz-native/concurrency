@@ -18,9 +18,12 @@ import java.util.concurrent.CyclicBarrier;
 public final class LoadProducer extends Thread {
     private static final String TAG = LoadProducer.class.getSimpleName();
 
-    @NonNull private final Set<String> results;
-    @NonNull private final Runnable onResult;
-    @NonNull private final CyclicBarrier cyclicBarrier;
+    @NonNull
+    private final Set<String> results;
+    @NonNull
+    private final Runnable onResult;
+    @NonNull
+    private final CyclicBarrier cyclicBarrier;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
                         @NonNull CyclicBarrier cyclicBarrier) {
@@ -37,8 +40,10 @@ public final class LoadProducer extends Thread {
         final String result = new DownloadLatch().doWork();
 
         /* Checking if we were interrupted while doing work */
-        if (isInterrupted())
+        if (isInterrupted()) {
+            Log.d(TAG, "Producer was successfully interrupted while doing work");
             return;
+        }
 
         results.add(result);
 
@@ -50,7 +55,7 @@ public final class LoadProducer extends Thread {
             /* Waiting for other threads */
             cyclicBarrier.await();
         } catch (InterruptedException | BrokenBarrierException e) {
-            Log.d(TAG, "Producer thread was successfully interrupted");
+            Log.d(TAG, "Producer thread was successfully interrupted while waiting others");
         }
     }
 }
