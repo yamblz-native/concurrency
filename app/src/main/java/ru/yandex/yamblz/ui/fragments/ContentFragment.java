@@ -1,7 +1,5 @@
 package ru.yandex.yamblz.ui.fragments;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,7 +12,6 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -22,7 +19,6 @@ import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
 
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 @SuppressWarnings("WeakerAccess")
 public class ContentFragment extends BaseFragment {
 
@@ -31,8 +27,6 @@ public class ContentFragment extends BaseFragment {
     private static final int PRODUCERS_COUNT = 5;
 
     private long startTime, endTime;
-
-    public final static Phaser PHASER = new Phaser(PRODUCERS_COUNT);
 
     @BindView(R.id.hello)
     TextView helloView;
@@ -51,13 +45,9 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        // Phaser - это комбинация CountDownLatch + CyclicBarrier. Позволяет разбивать работу
-        // потоков по нескольким фазам, переиспользование. Гибкий инструмент - но только с api 21.
-        // К тому же для даной задачи он слишком сложный, намного проще реализовать ожидание        // без него.
-
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult).start();
+            new LoadProducer(dataResults, this::postResult);
         }
 
     }
