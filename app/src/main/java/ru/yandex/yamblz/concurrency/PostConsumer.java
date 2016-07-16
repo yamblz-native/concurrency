@@ -26,9 +26,10 @@ public final class PostConsumer extends Thread {
 
         Log.d("Consumer", "Consumer start");
 
-        Log.d("Consumer","Running onFinish");
-        onFinish.run();
+         /* Synchronize via concurrent mechanics */
 
+        Log.d("Consumer", "Running onFinish");
+        onFinish.run();
 
 
     }

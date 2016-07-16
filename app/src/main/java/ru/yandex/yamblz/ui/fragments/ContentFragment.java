@@ -12,16 +12,12 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
-import ru.yandex.yamblz.concurrency.Executorer;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
-import ru.yandex.yamblz.concurrency.WaitNotifyLock;
 
 @SuppressWarnings("WeakerAccess")
 public class ContentFragment extends BaseFragment {
@@ -49,14 +45,10 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        // Так, мы уже попробовали hard coder way; время попробовать в деле Executor'ы!
-        // Представим, что мы матерые java-разработчики))
-
-        // Ой-ой, а вот Executor в main-е создавать не надо - мы повесили main-тред! Вынесем Executor
-        // в отдельный поток
-
-        Executorer executorer = new Executorer(PRODUCERS_COUNT, dataResults, this::postResult, this::postFinish);
-        executorer.start();
+        new PostConsumer(this::postFinish).start();
+        for (int i = 0; i < PRODUCERS_COUNT; i++) {
+            new LoadProducer(dataResults, this::postResult);
+        }
 
     }
 
