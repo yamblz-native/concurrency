@@ -9,6 +9,7 @@ import ru.yandex.yamblz.concurrency.sync.impl.CountDownLatchImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.CyclicBarrierImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.ExchangerImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.JoinImpl;
+import ru.yandex.yamblz.concurrency.sync.impl.LockImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.PhaserImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.SemaphoreImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.WaitNotifyImpl;
@@ -40,6 +41,8 @@ public final class SyncBuilder {
                 return new PhaserImpl(params);
             case EXCHANGER:
                 return new ExchangerImpl(params);
+            case LOCK:
+                return new LockImpl(params);
             case JOIN:
                 return new JoinImpl(params);
             case WAIT_NOTIFY:
@@ -55,6 +58,7 @@ public final class SyncBuilder {
         CYCLIC_BARRIER,
         PHASER,
         EXCHANGER,
+        LOCK,
         JOIN,
         WAIT_NOTIFY,
     }
