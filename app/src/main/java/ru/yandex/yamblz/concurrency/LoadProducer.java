@@ -4,8 +4,6 @@ import android.support.annotation.NonNull;
 
 import java.util.Set;
 
-import ru.yandex.yamblz.ui.fragments.ContentFragment;
-
 /**
  * Simple load producer thread; non-extensible
  *
@@ -15,10 +13,12 @@ import ru.yandex.yamblz.ui.fragments.ContentFragment;
 public final class LoadProducer extends Thread {
 
     @NonNull private final Set<String> results;
+    private final WaitNotifyLock locker;
     @NonNull private final Runnable onResult;
 
-    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
+    public LoadProducer(@NonNull Set<String> resultSet, WaitNotifyLock locker, @NonNull Runnable onResult) {
         this.results = resultSet;
+        this.locker = locker;
         this.onResult = onResult;
     }
 
@@ -26,10 +26,14 @@ public final class LoadProducer extends Thread {
     public void run() {
         super.run();
 
-        final String result = new DownloadLatch().doWork();
-        results.add(result);
+        synchronized (locker) {
+            final String result = new DownloadLatch().doWork();
+            results.add(result);
+            locker.tick();
+            locker.notify();
 
-        ContentFragment.LATCH.countDown();
+        }
+
 
         onResult.run();
     }

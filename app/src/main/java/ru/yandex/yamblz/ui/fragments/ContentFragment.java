@@ -3,11 +3,13 @@ package ru.yandex.yamblz.ui.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -16,6 +18,7 @@ import butterknife.BindView;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
+import ru.yandex.yamblz.concurrency.WaitNotifyLock;
 
 @SuppressWarnings("WeakerAccess")
 public class ContentFragment extends BaseFragment {
@@ -44,9 +47,11 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+        Log.d(Calendar.getInstance().getTime().toString(), "Fragment starts threading");
+        WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
+        new PostConsumer(this::postFinish, locker).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult).start();
+            new LoadProducer(dataResults, locker, this::postResult).start();
         }
     }
 
