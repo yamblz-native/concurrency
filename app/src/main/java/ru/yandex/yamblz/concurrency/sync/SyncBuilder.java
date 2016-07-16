@@ -6,6 +6,7 @@ import java.security.InvalidParameterException;
 import java.util.Set;
 
 import ru.yandex.yamblz.concurrency.sync.impl.CountDownLatchImpl;
+import ru.yandex.yamblz.concurrency.sync.impl.CyclicBarrierImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.SemaphoreImpl;
 
 /**
@@ -25,17 +26,20 @@ public final class SyncBuilder {
 
     public Synchronizer build(Type type) {
         switch (type) {
-            case COUNT_DOWN_LATCH:
-                return new CountDownLatchImpl(params);
             case SEMAPHORE:
                 return new SemaphoreImpl(params);
+            case COUNT_DOWN_LATCH:
+                return new CountDownLatchImpl(params);
+            case CYCLIC_BARRIER:
+                return new CyclicBarrierImpl(params);
             default:
                 throw new InvalidParameterException();
         }
     }
 
     public enum Type {
+        SEMAPHORE,
         COUNT_DOWN_LATCH,
-        SEMAPHORE
+        CYCLIC_BARRIER,
     }
 }

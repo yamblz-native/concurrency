@@ -3,6 +3,7 @@
     <string name="content">Hello</string>
 
     <string name="task_win">WIN!!</string>
-    <string name="count_down_latch">CountDownLatch</string>
     <string name="semaphore">Semaphore</string>
+    <string name="count_down_latch">CountDownLatch</string>
+    <string name="cyclic_barrier">CyclicBarrier</string>
 </resources>

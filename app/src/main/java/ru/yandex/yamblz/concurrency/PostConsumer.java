@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
  * @author archinamon on 13/07/16.
  */
 
-public abstract class PostConsumer extends Thread {
+public class PostConsumer extends Thread {
 
     @NonNull private final Runnable onFinish;
 
@@ -29,5 +29,7 @@ public abstract class PostConsumer extends Thread {
     }
 
 
-    protected abstract void synchronize() throws InterruptedException;
+    protected void synchronize() throws InterruptedException {
+        // Empty or overridden
+    }
 }

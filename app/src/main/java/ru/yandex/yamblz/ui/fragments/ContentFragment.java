@@ -37,25 +37,6 @@ public class ContentFragment extends BaseFragment {
     }
 
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        syncBuilder.init(dataResults, this::postResult, this::postFinish, (ViewGroup) getView());
-    }
-
-
-    @OnClick(R.id.count_down_latch)
-    public void countDownLatchImpl() {
-        syncBuilder.build(Type.COUNT_DOWN_LATCH).sync();
-    }
-
-
-    @OnClick(R.id.semaphore)
-    public void semaphoreImpl() {
-        syncBuilder.build(Type.SEMAPHORE).sync();
-    }
-
-
     final void postResult() {
         runOnUiThreadIfFragmentAlive(() -> helloView.setText(String.valueOf(dataResults.size())));
     }
@@ -67,5 +48,30 @@ public class ContentFragment extends BaseFragment {
         }
 
         runOnUiThreadIfFragmentAlive(() -> helloView.setText(R.string.task_win));
+    }
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        syncBuilder.init(dataResults, this::postResult, this::postFinish, (ViewGroup) getView());
+    }
+
+
+    @OnClick(R.id.semaphore)
+    public void semaphoreImpl() {
+        syncBuilder.build(Type.SEMAPHORE).sync();
+    }
+
+
+    @OnClick(R.id.count_down_latch)
+    public void countDownLatchImpl() {
+        syncBuilder.build(Type.COUNT_DOWN_LATCH).sync();
+    }
+
+
+    @OnClick(R.id.cyclic_barrier)
+    public void cyclicBarrierImpl() {
+        syncBuilder.build(Type.CYCLIC_BARRIER).sync();
     }
 }

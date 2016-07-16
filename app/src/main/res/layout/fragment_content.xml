@@ -13,14 +13,20 @@
         android:text="@string/content"
         android:textSize="42sp" />
 
+
+    <Button
+        android:id="@+id/semaphore"
+        style="@style/Button"
+        android:text="@string/semaphore" />
+
     <Button
         android:id="@+id/count_down_latch"
         style="@style/Button"
         android:text="@string/count_down_latch" />
 
     <Button
-        android:id="@+id/semaphore"
+        android:id="@+id/cyclic_barrier"
         style="@style/Button"
-        android:text="@string/semaphore" />
+        android:text="@string/cyclic_barrier" />
 
 </LinearLayout>

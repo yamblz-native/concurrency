@@ -29,9 +29,11 @@ public abstract class LoadProducer extends Thread {
 
         onResult.run();
 
-        synchronize();
+        try {
+            synchronize();
+        } catch (Exception ignored) { /* */ }
     }
 
 
-    protected abstract void synchronize();
+    protected abstract void synchronize() throws Exception;
 }
