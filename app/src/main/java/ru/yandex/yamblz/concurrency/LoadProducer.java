@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class LoadProducer extends Thread {
 
-    @NonNull private final Set<String> results;
+    @NonNull protected final Set<String> results;
     @NonNull private final Runnable onResult;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {

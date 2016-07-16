@@ -11,6 +11,7 @@ import ru.yandex.yamblz.concurrency.sync.impl.ExchangerImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.JoinImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.PhaserImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.SemaphoreImpl;
+import ru.yandex.yamblz.concurrency.sync.impl.WaitNotifyImpl;
 
 /**
  * From the architectural standpoint it is better to refactor this
@@ -41,6 +42,8 @@ public final class SyncBuilder {
                 return new ExchangerImpl(params);
             case JOIN:
                 return new JoinImpl(params);
+            case WAIT_NOTIFY:
+                return new WaitNotifyImpl(params);
             default:
                 throw new InvalidParameterException();
         }
@@ -53,5 +56,6 @@ public final class SyncBuilder {
         PHASER,
         EXCHANGER,
         JOIN,
+        WAIT_NOTIFY,
     }
 }

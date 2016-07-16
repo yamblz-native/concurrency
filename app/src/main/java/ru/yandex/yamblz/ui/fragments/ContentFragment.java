@@ -94,4 +94,10 @@ public class ContentFragment extends BaseFragment {
     public void joinImpl() {
         syncBuilder.build(Type.JOIN).sync();
     }
+
+
+    @OnClick(R.id.wait_notify)
+    public void waitNotifyImpl() {
+        syncBuilder.build(Type.WAIT_NOTIFY).sync();
+    }
 }
