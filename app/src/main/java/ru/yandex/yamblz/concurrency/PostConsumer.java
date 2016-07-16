@@ -17,14 +17,10 @@ import ru.yandex.yamblz.ui.fragments.ContentFragment;
 public final class PostConsumer extends Thread {
     private final String TAG = this.getClass().getSimpleName();
 
-    @NonNull
-    private final Runnable onFinish;
-    @NonNull
-    private final int loadProducersNumber; // Number of load producers
-    @NonNull
-    private ContentFragment fragment;
-    @NonNull
-    private CyclicBarrier cyclicBarrier;
+    @NonNull private final Runnable onFinish;
+    @NonNull private final int loadProducersNumber; // Number of load producers
+    @NonNull private ContentFragment fragment;
+    @NonNull private CyclicBarrier cyclicBarrier;
 
 
     public PostConsumer(@NonNull Runnable onFinish,
