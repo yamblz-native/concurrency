@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.Phaser;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -24,8 +25,13 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
+    //В данном примере использование потокобезопасных коллекций кажется избыточным, ибо только добавляем
+    //При необходимости изменять содержимое коллекции во время итерации по элементам надо бы юзать что-нибудь потокобезопасное
     @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
 
+    //Использование Phaser в Android приложенини кажется не очень обоснованным в виду его новизны,
+    //но ограничений по поддерживаемым версиям в задании нет, и больно хочется
+    @NonNull private final Phaser phaser = new Phaser(1);// 1 for PostConsumer
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -37,21 +43,39 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            // Регестрируем новый поток в фазере и активирем его
+            phaser.register();
+            new LoadProducer(dataResults, this::postResult).start();
         }
     }
 
     final void postResult() {
-        assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(()->{
+            helloView.setText(String.valueOf(dataResults.size()));
+        });
+        phaser.arriveAndDeregister();
     }
 
     final void postFinish() {
-        if (dataResults.size() < PRODUCERS_COUNT) {
-            throw new RuntimeException(CONSUME_EXCEPTION);
+        //PostConsumer покорно ждет, пока остальные закончат
+        phaser.arriveAndAwaitAdvance();
+        //После освобождения проверяем на случай любых махинаций с фрагментов
+        //Не выполняем логику, если в этом нет необходимости
+        if(!phaser.isTerminated()){
+            if (dataResults.size() < PRODUCERS_COUNT) {
+                throw new RuntimeException(CONSUME_EXCEPTION);
+            }
+            runOnUiThreadIfFragmentAlive(()-> {
+                helloView.setText(R.string.task_win);
+            });
         }
+    }
 
-        assert helloView != null;
-        helloView.setText(R.string.task_win);
+    @Override
+    public void onPause(){
+        super.onPause();
+        //Дабы не допустить утечку памяти в виде ожидающего чуда PostConsumer,
+        //освобождаем все схвашеные фазером потоки
+        phaser.forceTermination();
     }
 }
