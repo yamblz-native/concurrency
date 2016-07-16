@@ -78,6 +78,12 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @OnClick(R.id.phaser)
+    public void phaserImpl() {
+        syncBuilder.build(Type.PHASER).sync();
+    }
+
+
     @OnClick(R.id.join)
     public void joinImpl() {
         syncBuilder.build(Type.JOIN).sync();

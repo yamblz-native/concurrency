@@ -8,6 +8,7 @@ import java.util.Set;
 import ru.yandex.yamblz.concurrency.sync.impl.CountDownLatchImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.CyclicBarrierImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.JoinImpl;
+import ru.yandex.yamblz.concurrency.sync.impl.PhaserImpl;
 import ru.yandex.yamblz.concurrency.sync.impl.SemaphoreImpl;
 
 /**
@@ -33,6 +34,8 @@ public final class SyncBuilder {
                 return new CountDownLatchImpl(params);
             case CYCLIC_BARRIER:
                 return new CyclicBarrierImpl(params);
+            case PHASER:
+                return new PhaserImpl(params);
             case JOIN:
                 return new JoinImpl(params);
             default:
@@ -44,6 +47,7 @@ public final class SyncBuilder {
         SEMAPHORE,
         COUNT_DOWN_LATCH,
         CYCLIC_BARRIER,
+        PHASER,
         JOIN,
     }
 }

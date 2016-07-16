@@ -39,6 +39,11 @@
                 android:text="@string/cyclic_barrier" />
 
             <Button
+                android:id="@+id/phaser"
+                style="@style/Button"
+                android:text="@string/phaser" />
+
+            <Button
                 android:id="@+id/join"
                 style="@style/Button"
                 android:text="@string/join" />
