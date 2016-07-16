@@ -27,7 +27,6 @@ public class ContentFragment extends BaseFragment {
     @BindView(R.id.hello) TextView helloView;
 
     @NonNull private final Set<String> dataResults = new ConcurrentSkipListSet<>();
-
     PostConsumer consumerThread;
     @NonNull private final List<Thread> threads = new ArrayList<>();
 
@@ -41,11 +40,12 @@ public class ContentFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
 
+        /* Creating consumer thread */
         consumerThread = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
         threads.add(consumerThread);
         consumerThread.start();
 
-        // Let post consumer make LoadProducers
+        /* Creating producers threads */
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
             LoadProducer loadProducer = new LoadProducer(dataResults, this::postResult,
                     consumerThread.getCyclicBarrier(), this);
