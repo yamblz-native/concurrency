@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -25,7 +26,7 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = Collections.synchronizedSet(new LinkedHashSet<>());
 
     @NonNull
     @Override
