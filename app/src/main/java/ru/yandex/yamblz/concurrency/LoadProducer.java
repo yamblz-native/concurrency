@@ -18,12 +18,9 @@ import java.util.concurrent.CyclicBarrier;
 public final class LoadProducer extends Thread {
     private static final String TAG = LoadProducer.class.getSimpleName();
 
-    @NonNull
-    private final Set<String> results;
-    @NonNull
-    private final Runnable onResult;
-    @NonNull
-    private final CyclicBarrier cyclicBarrier;
+    @NonNull private final Set<String> results;
+    @NonNull private final Runnable onResult;
+    @NonNull private final CyclicBarrier cyclicBarrier;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
                         @NonNull CyclicBarrier cyclicBarrier) {
