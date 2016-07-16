@@ -8,9 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -22,11 +26,12 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
+    private ExecutorService executor;
     private boolean producersIsExist;
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = Collections.synchronizedSet(new LinkedHashSet<>());
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -51,15 +56,16 @@ public class ContentFragment extends BaseFragment {
         {
             dataResults.clear();
             CountDownLatch countDownLatch = new CountDownLatch(PRODUCERS_COUNT);
+            executor = Executors.newFixedThreadPool(PRODUCERS_COUNT);
 
             new PostConsumer(this::postFinish, countDownLatch).start();
 
             for (int i = 0; i < PRODUCERS_COUNT; i++)
             {
-                new LoadProducer(dataResults, this::postResult, countDownLatch).start();
+                executor.execute(new LoadProducer(dataResults, this::postResult, countDownLatch));
             }
 
-            producersIsExist = true;
+            producersIsExist = !executor.isShutdown();
         }
     }
 
@@ -78,6 +84,12 @@ public class ContentFragment extends BaseFragment {
             helloView.setText(R.string.task_win);
         });
 
+        stopThreads();
+    }
+
+    private void stopThreads()
+    {
+        executor.shutdown();
         producersIsExist = false;
     }
 }
