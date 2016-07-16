@@ -75,11 +75,6 @@ public class ContentFragment extends BaseFragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         for (Thread thread : threads) {
