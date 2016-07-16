@@ -13,37 +13,31 @@ import java.util.Calendar;
 
 public final class PostConsumer extends Thread {
 
+    // Не уверена, что хранить ссылку на один тред в другом - это хорошее решени
+    private Thread workingThread;
     @NonNull
     private final Runnable onFinish;
-    private final WaitNotifyLock lock;
 
-    public PostConsumer(@NonNull Runnable onFinish, WaitNotifyLock lock) {
+    public PostConsumer(Thread workingThread, @NonNull Runnable onFinish) {
+        this.workingThread = workingThread;
         this.onFinish = onFinish;
-        this.lock = lock;
     }
 
     @Override
     public void run() {
         super.run();
 
-        synchronized (lock) { // Почему поле должно быть финальным?
-            // С какого момента произойдет восстановление процесса работы потока? - С момента вызова .wail()
-            // Что произойдет, если не вызвать метод notify()?
-            Log.d(Calendar.getInstance().getTime().toString(), "Consumer enters sync block");
-            while (lock.getThreads() > 0) {
-                try {
-                    Log.d(Calendar.getInstance().getTime().toString(), "Consumer waits for 1 sec");
-                    lock.wait(1000);
-                    Log.d(Calendar.getInstance().getTime().toString(), "Consumer stopped waiting");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            onFinish.run();
-
+        Log.d("Consumer", "Consumer start");
+        try {
+            workingThread.join();
+            Log.d("Consumer", "Consumer join finished; resuming execution");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        Log.d("Consumer","Running onFinish");
+        onFinish.run();
+
+
 
     }
 

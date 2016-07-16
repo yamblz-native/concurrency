@@ -1,6 +1,7 @@
 package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Set;
 
@@ -12,13 +13,13 @@ import java.util.Set;
 
 public final class LoadProducer extends Thread {
 
-    @NonNull private final Set<String> results;
-    private final WaitNotifyLock locker;
-    @NonNull private final Runnable onResult;
+    @NonNull
+    private final Set<String> results;
+    @NonNull
+    private final Runnable onResult;
 
-    public LoadProducer(@NonNull Set<String> resultSet, WaitNotifyLock locker, @NonNull Runnable onResult) {
+    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
         this.results = resultSet;
-        this.locker = locker;
         this.onResult = onResult;
     }
 
@@ -26,15 +27,11 @@ public final class LoadProducer extends Thread {
     public void run() {
         super.run();
 
-        synchronized (locker) {
-            final String result = new DownloadLatch().doWork();
-            results.add(result);
-            locker.tick();
-            locker.notify();
+        Log.d("Producer", "Producer starts working");
 
-        }
-
-
+        final String result = new DownloadLatch().doWork();
+        results.add(result);
+        Log.d("Producer", "Producer finished working, results size = " + results.size());
         onResult.run();
     }
 }

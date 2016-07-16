@@ -21,6 +21,7 @@ import butterknife.BindView;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
+import ru.yandex.yamblz.concurrency.ProducersThread;
 import ru.yandex.yamblz.concurrency.WaitNotifyLock;
 
 @SuppressWarnings("WeakerAccess")
@@ -29,11 +30,6 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
-
-    // Используем CountDownLatch, т.к. все что нужно сделать - это заблокировать выполнение
-    // PostConsumer, пока не выполнятся все 5 штук LoadProducer. Как только они выполнились
-    // и все счетчики протикали, поток PostConsumer возобновляет работу.
-    public static final CountDownLatch LATCH = new CountDownLatch(PRODUCERS_COUNT);
 
     @BindView(R.id.hello)
     TextView helloView;
@@ -49,13 +45,14 @@ public class ContentFragment extends BaseFragment {
 
     @Override
     public void onResume() {
+        // TODO: Сделать логирование, чекнуть мемори и время выполнения
         super.onResume();
         Log.d(Calendar.getInstance().getTime().toString(), "Fragment starts threading");
-        WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
-        new PostConsumer(this::postFinish, locker).start();
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, locker, this::postResult).start();
-        }
+        ProducersThread producersThread = new ProducersThread(PRODUCERS_COUNT, dataResults, this::postResult);
+        producersThread.start();
+        PostConsumer consumer = new PostConsumer(producersThread, this::postFinish);
+        consumer.start();
+
     }
 
     final void postResult() {
