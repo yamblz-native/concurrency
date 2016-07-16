@@ -20,10 +20,14 @@ import ru.yandex.yamblz.ui.fragments.ContentFragment;
 public final class LoadProducer extends Thread {
     private final String TAG = this.getClass().getSimpleName();
 
-    @NonNull private final Set<String> results;
-    @NonNull private final Runnable onResult;
-    @NonNull private ContentFragment contentFragment;
-    @NonNull private final CyclicBarrier cyclicBarrier;
+    @NonNull
+    private final Set<String> results;
+    @NonNull
+    private final Runnable onResult;
+    @NonNull
+    private ContentFragment contentFragment;
+    @NonNull
+    private final CyclicBarrier cyclicBarrier;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
                         @NonNull CyclicBarrier cyclicBarrier, @NonNull ContentFragment contentFragment) {
@@ -38,15 +42,20 @@ public final class LoadProducer extends Thread {
         super.run();
 
         /* Synchronize via concurrent mechanics */
-        final String result = new DownloadLatch().doWork();
-        results.add(result);
+        try {
+            final String result = new DownloadLatch().doWork();
 
-        /* Posting result to UI */
-        if (!isInterrupted())
+            /* Checking if we were interrupted while doing work */
+            if (isInterrupted())
+                return;
+
+            results.add(result);
+
+            /* Using handler just for demonstration (better to use unOnUiThreadIfFragmentAlive)
+             * Yes, I know that if we don't interrupt this thread, then app exception will happen */
             new Handler(Looper.getMainLooper()).post(onResult);
 
-        /* Waiting for other threads */
-        try {
+            /* Waiting for other threads */
             cyclicBarrier.await();
         } catch (InterruptedException | BrokenBarrierException e) {
             Log.d(TAG, "Producer thread was successfully interrupted");
