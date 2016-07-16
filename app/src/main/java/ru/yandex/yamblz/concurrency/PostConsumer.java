@@ -13,13 +13,10 @@ import java.util.Calendar;
 
 public final class PostConsumer extends Thread {
 
-    // Не уверена, что хранить ссылку на один тред в другом - это хорошее решени
-    private Thread workingThread;
     @NonNull
     private final Runnable onFinish;
 
-    public PostConsumer(Thread workingThread, @NonNull Runnable onFinish) {
-        this.workingThread = workingThread;
+    public PostConsumer(@NonNull Runnable onFinish) {
         this.onFinish = onFinish;
     }
 
@@ -28,12 +25,7 @@ public final class PostConsumer extends Thread {
         super.run();
 
         Log.d("Consumer", "Consumer start");
-        try {
-            workingThread.join();
-            Log.d("Consumer", "Consumer join finished; resuming execution");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         Log.d("Consumer","Running onFinish");
         onFinish.run();
 

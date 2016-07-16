@@ -9,20 +9,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
-import ru.yandex.yamblz.concurrency.ProducersThread;
 import ru.yandex.yamblz.concurrency.WaitNotifyLock;
 
 @SuppressWarnings("WeakerAccess")
@@ -51,23 +48,22 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        // Теперь попробуем то же самое, только с join-ом
-        // join блокирует выполнение текущего треда до тех пор, пока не завершится другой
-        // Значит, нам нужен еще один тред, который будет следить за выполнением Producer-тредов
-        // и завершится только после выполнения их всех.
-        // Можно сделать это только join-ами, но в таком случае, Producer тредам придется выполняться
-        // последовательно, что совершенно не круто. Либо используем wait / notify и наш уже написанный
-        // WaitNotifyLock
-        // В любом случае, много лишего кода, понимание затрудняется и вообще фу.
-        // Резюме: не стоит использовать join для синхронизации нескольких потоков (по крайней мере,
-        // если они создаются не из друг друга
-        if (dataResults.size() < PRODUCERS_COUNT) {
-            WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
-            ProducersThread joinThread = new ProducersThread(locker, dataResults, this::postResult);
-            joinThread.start();
-            new PostConsumer(joinThread, this::postFinish).start();
+        // Так, мы уже попробовали hard coder way; время попробовать в деле Executor'ы!
+        // Представим, что мы матерые java-разработчики))
 
+        ExecutorService executorService = Executors.newFixedThreadPool(PRODUCERS_COUNT);
+        for (int i = 0; i < PRODUCERS_COUNT; i++) {
+            executorService.execute(new LoadProducer(dataResults, this::postResult));
         }
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.d("Executor", "All producers finished working");
+        }
+        new PostConsumer(this::postFinish).start();
     }
 
     final void postResult() {
