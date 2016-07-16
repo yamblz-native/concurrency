@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -26,6 +28,9 @@ public class ContentFragment extends BaseFragment {
 
     @NonNull private final Set<String> dataResults = new ConcurrentSkipListSet<>();
 
+    PostConsumer consumerThread;
+    @NonNull private final List<Thread> threads = new ArrayList<>();
+
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -36,14 +41,16 @@ public class ContentFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
 
-        PostConsumer consumerThread
-                = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
+        consumerThread = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
+        threads.add(consumerThread);
         consumerThread.start();
 
         // Let post consumer make LoadProducers
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult,
-                    consumerThread.getCyclicBarrier()).start();
+            LoadProducer loadProducer = new LoadProducer(dataResults, this::postResult,
+                    consumerThread.getCyclicBarrier(), this);
+            threads.add(loadProducer);
+            loadProducer.start();
         }
     }
 
@@ -65,5 +72,13 @@ public class ContentFragment extends BaseFragment {
     // Not sure if that's ok
     public void runOnUiThreadIfFragmentAlive(@NonNull Runnable runnable) {
         super.runOnUiThreadIfFragmentAlive(runnable);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (Thread thread : threads) {
+            thread.interrupt();
+        }
     }
 }

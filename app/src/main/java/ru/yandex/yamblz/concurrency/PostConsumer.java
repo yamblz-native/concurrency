@@ -42,12 +42,11 @@ public final class PostConsumer extends Thread {
         /* Synchronize via concurrent mechanics */
         try {
             cyclicBarrier.await();
+            fragment.runOnUiThreadIfFragmentAlive(onFinish);
         } catch (InterruptedException | BrokenBarrierException e) {
-            e.printStackTrace();
             Log.d(TAG, "Consumer thread was successfully interrupted");
         }
 
-        fragment.runOnUiThreadIfFragmentAlive(onFinish);
     }
 
     @NonNull

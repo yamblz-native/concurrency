@@ -3,10 +3,13 @@ package ru.yandex.yamblz.concurrency;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+
+import ru.yandex.yamblz.ui.fragments.ContentFragment;
 
 /**
  * Simple load producer thread; non-extensible
@@ -15,15 +18,18 @@ import java.util.concurrent.CyclicBarrier;
  */
 
 public final class LoadProducer extends Thread {
+    private final String TAG = this.getClass().getSimpleName();
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
-    private final CyclicBarrier cyclicBarrier;
+    @NonNull private ContentFragment contentFragment;
+    @NonNull private final CyclicBarrier cyclicBarrier;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
-        CyclicBarrier cyclicBarrier) {
+                        @NonNull CyclicBarrier cyclicBarrier, @NonNull ContentFragment contentFragment) {
         this.results = resultSet;
         this.onResult = onResult;
+        this.contentFragment = contentFragment;
         this.cyclicBarrier = cyclicBarrier;
     }
 
@@ -35,21 +41,15 @@ public final class LoadProducer extends Thread {
         final String result = new DownloadLatch().doWork();
         results.add(result);
 
-        // Posting result to UI
-        new Handler(Looper.getMainLooper()).post(onResult);
+        /* Posting result to UI */
+        if (!isInterrupted())
+            new Handler(Looper.getMainLooper()).post(onResult);
 
         /* Waiting for other threads */
         try {
-            // Some kind of foolproof
-            if (cyclicBarrier == null) {
-                String detailMessage = "Run and initialize consumer thread" +
-                        "before initializing and running producers";
-                throw new IllegalStateException(detailMessage);
-            }
-
             cyclicBarrier.await();
         } catch (InterruptedException | BrokenBarrierException e) {
-            e.printStackTrace();
+            Log.d(TAG, "Producer thread was successfully interrupted");
         }
     }
 }
