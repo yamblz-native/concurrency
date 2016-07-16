@@ -15,5 +15,6 @@
     <string name="lock">Lock</string>
     <string name="join">join()</string>
     <string name="wait_notify">wait() &amp; notify()</string>
+    <string name="sleep_interrupt">sleep() &amp; interrupt()</string>
     <string name="uncaught_exception_handler">UncaughtExceptionHandler</string>
 </resources>

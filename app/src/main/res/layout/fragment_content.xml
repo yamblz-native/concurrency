@@ -74,6 +74,11 @@
                 android:text="@string/wait_notify" />
 
             <Button
+                android:id="@+id/sleep_interrupt"
+                style="@style/Button"
+                android:text="@string/sleep_interrupt" />
+
+            <Button
                 android:id="@+id/uncaught_exception_handler"
                 style="@style/Button"
                 android:text="@string/uncaught_exception_handler" />

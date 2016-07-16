@@ -120,6 +120,12 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @OnClick(R.id.sleep_interrupt)
+    public void sleepInterruptImpl() {
+        syncBuilder.build(Type.SLEEP_INTERRUPT).sync();
+    }
+
+
     @OnClick(R.id.uncaught_exception_handler)
     public void uncaughtExceptionHandlerImpl() {
         syncBuilder.build(Type.UNCAUGHT_EXCEPTION_HANDLER).sync();
