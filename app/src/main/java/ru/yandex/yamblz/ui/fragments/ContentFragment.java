@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -30,10 +31,7 @@ public class ContentFragment extends BaseFragment {
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
 
-    // Используем CountDownLatch, т.к. все что нужно сделать - это заблокировать выполнение
-    // PostConsumer, пока не выполнятся все 5 штук LoadProducer. Как только они выполнились
-    // и все счетчики протикали, поток PostConsumer возобновляет работу.
-    public static final CountDownLatch LATCH = new CountDownLatch(PRODUCERS_COUNT);
+    private long startTime, endTime;
 
     @BindView(R.id.hello)
     TextView helloView;
@@ -50,11 +48,21 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(Calendar.getInstance().getTime().toString(), "Fragment starts threading");
-        WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
-        new PostConsumer(this::postFinish, locker).start();
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, locker, this::postResult).start();
+        startTime = System.nanoTime();
+
+        // Использовать синхронизатор - это довольно просто. А что если попробовать без него?
+        // Можем использовать системные вызовы wait/notify и join, заодно проверим, что будет выполняться
+        // быстрее.
+
+        // Для реализации синхронизации через wait / notify, можно использовать объект dataResults,
+        // и проверять его размер, либо написать свой объект со счетчиком операций и проверять, сколько
+        // операций было выполнено (ничего не напоминает?))
+        if (dataResults.size() < PRODUCERS_COUNT) {
+            WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
+            new PostConsumer(this::postFinish, locker).start();
+            for (int i = 0; i < PRODUCERS_COUNT; i++) {
+                new LoadProducer(dataResults, locker, this::postResult).start();
+            }
         }
     }
 
@@ -69,6 +77,9 @@ public class ContentFragment extends BaseFragment {
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
+
+        endTime = System.nanoTime();
+        Log.d("Execution time", String.valueOf(TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS) + "ms"));
 
         runOnUiThreadIfFragmentAlive(() -> {
             assert helloView != null;

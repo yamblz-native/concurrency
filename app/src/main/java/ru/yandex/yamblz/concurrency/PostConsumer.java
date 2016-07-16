@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Calendar;
+import java.util.Set;
 
 /**
  * Simple result consumer thread; non-extensible
@@ -26,21 +27,28 @@ public final class PostConsumer extends Thread {
     public void run() {
         super.run();
 
-        synchronized (lock) { // Почему поле должно быть финальным?
-            // С какого момента произойдет восстановление процесса работы потока? - С момента вызова .wail()
-            // Что произойдет, если не вызвать метод notify()?
-            Log.d(Calendar.getInstance().getTime().toString(), "Consumer enters sync block");
+        synchronized (lock) {
+            // Почему поле должно быть финальным? - Если монитор будет изменен, то
+            // лок будет стоять на разных инстансах объекта, и синхронизация будет работать для
+            // разных инстансов объекта. Таким образом, лока на самом деле происходить не будет
+            // и произойдет race condition.
+
+            // С какого момента произойдет восстановление процесса работы потока? - С момента вызова .wait()
+
+            // Что произойдет, если не вызвать метод notify()? - Тред будет разбужен и попробует получить
+            // доступ к ресурсу в недетерминированное время, в зависимости от желания левой пятки jvm
+            Log.d("CONSUMER", "Consumer enters sync block");
             while (lock.getThreads() > 0) {
                 try {
-                    Log.d(Calendar.getInstance().getTime().toString(), "Consumer waits for 1 sec");
-                    lock.wait(1000);
-                    Log.d(Calendar.getInstance().getTime().toString(), "Consumer stopped waiting");
+                    Log.d("CONSUMER", "Consumer waits");
+                    lock.wait(1); // Как выбрать правильное время ожидания для треда? -
+                    Log.d("CONSUMER", "Consumer stopped waiting");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
             }
-
+            Log.d("CONSUMER", "Consumer finished execution");
             onFinish.run();
 
         }

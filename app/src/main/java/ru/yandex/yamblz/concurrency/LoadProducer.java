@@ -12,13 +12,15 @@ import java.util.Set;
 
 public final class LoadProducer extends Thread {
 
-    @NonNull private final Set<String> results;
-    private final WaitNotifyLock locker;
-    @NonNull private final Runnable onResult;
+    @NonNull
+    private final Set<String> results;
+    private final WaitNotifyLock lock;
+    @NonNull
+    private final Runnable onResult;
 
-    public LoadProducer(@NonNull Set<String> resultSet, WaitNotifyLock locker, @NonNull Runnable onResult) {
+    public LoadProducer(@NonNull Set<String> resultSet, WaitNotifyLock lock, @NonNull Runnable onResult) {
         this.results = resultSet;
-        this.locker = locker;
+        this.lock = lock;
         this.onResult = onResult;
     }
 
@@ -26,12 +28,11 @@ public final class LoadProducer extends Thread {
     public void run() {
         super.run();
 
-        synchronized (locker) {
+        synchronized (lock) {
             final String result = new DownloadLatch().doWork();
             results.add(result);
-            locker.tick();
-            locker.notify();
-
+            lock.tick();
+            lock.notify();
         }
 
 
