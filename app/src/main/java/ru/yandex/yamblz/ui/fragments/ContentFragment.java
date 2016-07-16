@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
+import ru.yandex.yamblz.concurrency.Executorer;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
 import ru.yandex.yamblz.concurrency.WaitNotifyLock;
@@ -51,19 +52,12 @@ public class ContentFragment extends BaseFragment {
         // Так, мы уже попробовали hard coder way; время попробовать в деле Executor'ы!
         // Представим, что мы матерые java-разработчики))
 
-        ExecutorService executorService = Executors.newFixedThreadPool(PRODUCERS_COUNT);
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            executorService.execute(new LoadProducer(dataResults, this::postResult));
-        }
+        // Ой-ой, а вот Executor в main-е создавать не надо - мы повесили main-тред! Вынесем Executor
+        // в отдельный поток
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Log.d("Executor", "All producers finished working");
-        }
-        new PostConsumer(this::postFinish).start();
+        Executorer executorer = new Executorer(PRODUCERS_COUNT, dataResults, this::postResult, this::postFinish);
+        executorer.start();
+
     }
 
     final void postResult() {
