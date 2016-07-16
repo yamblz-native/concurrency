@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Yamblz</string>
+    <string name="app_name">Concurrency HW</string>
     <string name="content">Hello</string>
 
     <string name="task_win">WIN!!</string>
