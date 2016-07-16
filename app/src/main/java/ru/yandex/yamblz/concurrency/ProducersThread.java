@@ -9,32 +9,38 @@ import java.util.Set;
  */
 public class ProducersThread extends Thread {
 
-    private final int count;
+    private final WaitNotifyLock lock;
     private final Set<String> dataResults;
     private final Runnable onResult;
 
-    public ProducersThread(int count, Set<String> dataResults, Runnable onResult) {
+    public ProducersThread(WaitNotifyLock lock, Set<String> dataResults, Runnable onResult) {
 
-        this.count = count;
+        this.lock = lock;
         this.dataResults = dataResults;
         this.onResult = onResult;
     }
     @Override
     public void run() {
         super.run();
-        Log.d("Producers", "Starting producers setup");
-        for (int i = 0; i < count; i++) {
-            LoadProducer producer = new LoadProducer(dataResults, onResult);
-            producer.start();
-            try {
-                producer.join();
-                Log.d("Producers", "Joining process, i = " + i);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        Log.d("ProducersManager", "Starting producers setup");
+
+        for (int i = 0; i < lock.getThreads(); i++) {
+            new LoadProducer(dataResults, onResult, lock).start();
 
         }
-        Log.d("Producers", "All processes started");
+        Log.d("ProducersManager", "All processes started");
+
+        synchronized (lock) {
+            while (lock.getThreads() > 0) {
+                try {
+                    lock.wait(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            Log.d("ProducersManager", "Producers manager finished execution");
+        }
 
     }
 }

@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -31,6 +32,8 @@ public class ContentFragment extends BaseFragment {
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
 
+    private long startTime, endTime;
+
     @BindView(R.id.hello)
     TextView helloView;
 
@@ -45,14 +48,26 @@ public class ContentFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        // TODO: Сделать логирование, чекнуть мемори и время выполнения
         super.onResume();
-        Log.d(Calendar.getInstance().getTime().toString(), "Fragment starts threading");
-        ProducersThread producersThread = new ProducersThread(PRODUCERS_COUNT, dataResults, this::postResult);
-        producersThread.start();
-        PostConsumer consumer = new PostConsumer(producersThread, this::postFinish);
-        consumer.start();
+        startTime = System.nanoTime();
 
+        // Теперь попробуем то же самое, только с join-ом
+        // join блокирует выполнение текущего треда до тех пор, пока не завершится другой
+        // Значит, нам нужен еще один тред, который будет следить за выполнением Producer-тредов
+        // и завершится только после выполнения их всех.
+        // Можно сделать это только join-ами, но в таком случае, Producer тредам придется выполняться
+        // последовательно, что совершенно не круто. Либо используем wait / notify и наш уже написанный
+        // WaitNotifyLock
+        // В любом случае, много лишего кода, понимание затрудняется и вообще фу.
+        // Резюме: не стоит использовать join для синхронизации нескольких потоков (по крайней мере,
+        // если они создаются не из друг друга
+        if (dataResults.size() < PRODUCERS_COUNT) {
+            WaitNotifyLock locker = new WaitNotifyLock(PRODUCERS_COUNT);
+            ProducersThread joinThread = new ProducersThread(locker, dataResults, this::postResult);
+            joinThread.start();
+            new PostConsumer(joinThread, this::postFinish).start();
+
+        }
     }
 
     final void postResult() {
@@ -66,6 +81,9 @@ public class ContentFragment extends BaseFragment {
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
+
+        endTime = System.nanoTime();
+        Log.d("Execution time", String.valueOf(TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS) + "ms"));
 
         runOnUiThreadIfFragmentAlive(() -> {
             assert helloView != null;
