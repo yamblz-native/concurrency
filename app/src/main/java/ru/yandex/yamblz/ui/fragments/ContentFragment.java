@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class ContentFragment extends BaseFragment {
     private final SyncBuilder syncBuilder = new SyncBuilder();
 
     @BindView(R.id.hello) TextView helloView;
+    @BindView(R.id.btn_container) LinearLayout btnContainer;
 
     @NonNull private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -54,7 +56,7 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        syncBuilder.init(dataResults, this::postResult, this::postFinish, (ViewGroup) getView());
+        syncBuilder.init(dataResults, this::postResult, this::postFinish, btnContainer);
     }
 
 
