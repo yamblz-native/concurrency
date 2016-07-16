@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -22,9 +24,13 @@ public class ContentFragment extends BaseFragment {
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
 
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition allStart = lock.newCondition();
+
     @BindView(R.id.hello) TextView helloView;
 
     @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+
 
     @NonNull
     @Override
@@ -35,15 +41,21 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
+        new PostConsumer(this::postFinish,lock,allStart).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult,lock,allStart,PRODUCERS_COUNT).start();
         }
     }
 
     final void postResult() {
         assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        //to change view in background thread
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(String.valueOf(dataResults.size()));
+            }
+        });
     }
 
     final void postFinish() {
@@ -52,6 +64,13 @@ public class ContentFragment extends BaseFragment {
         }
 
         assert helloView != null;
-        helloView.setText(R.string.task_win);
+        //to change view in background thread
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(R.string.task_win);
+            }
+        });
+
     }
 }
