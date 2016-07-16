@@ -1,13 +1,12 @@
 package ru.yandex.yamblz.concurrency;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
-import java.lang.ref.WeakReference;
 import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-
-import ru.yandex.yamblz.ui.fragments.ContentFragment;
 
 /**
  * Simple load producer thread; non-extensible
@@ -20,14 +19,12 @@ public final class LoadProducer extends Thread {
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
     @NonNull private final CyclicBarrier cyclicBarrier;
-    @NonNull private final WeakReference<ContentFragment> fragment;
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult,
-        @NonNull CyclicBarrier cyclicBarrier, @NonNull ContentFragment fragment) {
+        @NonNull CyclicBarrier cyclicBarrier) {
         this.results = resultSet;
         this.onResult = onResult;
         this.cyclicBarrier = cyclicBarrier;
-        this.fragment = new WeakReference<>(fragment);
     }
 
     @Override
@@ -40,7 +37,7 @@ public final class LoadProducer extends Thread {
         results.add(result);
 
         // Posting result to UI
-        fragment.get().runOnUiThreadIfFragmentAlive(onResult);
+        new Handler(Looper.getMainLooper()).post(onResult);
 
         /* Waiting for other threads */
         try {

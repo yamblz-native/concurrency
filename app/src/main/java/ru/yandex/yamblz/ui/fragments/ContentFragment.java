@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -24,7 +24,7 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = new ConcurrentSkipListSet<>();
 
     @NonNull
     @Override
@@ -40,9 +40,10 @@ public class ContentFragment extends BaseFragment {
                 = new PostConsumer(this::postFinish, PRODUCERS_COUNT, this);
         consumerThread.start();
 
+        // Let post consumer to make LoadProducers
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
             new LoadProducer(dataResults, this::postResult,
-                    consumerThread.getCyclicBarrier(), this).start();
+                    consumerThread.getCyclicBarrier()).start();
         }
     }
 
