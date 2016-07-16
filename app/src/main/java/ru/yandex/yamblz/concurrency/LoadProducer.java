@@ -35,7 +35,10 @@ public final class LoadProducer extends Thread {
             Log.d("LoadProducer","interrupted before barrier");
         }
         else{
-            results.add(result);
+            synchronized (this){
+                results.add(result);
+            }
+
             onResult.run();
             try {
                 barrier.await();
