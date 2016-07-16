@@ -27,8 +27,10 @@ public final class LoadProducer extends Thread {
         /* Synchronize via concurrent mechanics */
 
         final String result = new DownloadLatch().doWork();
-        results.add(result);
-
+        //Для абсолютной консистентности
+        synchronized (results){
+            results.add(result);
+        }
         onResult.run();
     }
 }
