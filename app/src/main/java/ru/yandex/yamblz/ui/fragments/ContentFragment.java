@@ -74,4 +74,10 @@ public class ContentFragment extends BaseFragment {
     public void cyclicBarrierImpl() {
         syncBuilder.build(Type.CYCLIC_BARRIER).sync();
     }
+
+
+    @OnClick(R.id.join)
+    public void joinImpl() {
+        syncBuilder.build(Type.JOIN).sync();
+    }
 }

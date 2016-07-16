@@ -10,7 +10,7 @@ import java.util.Set;
  * @author archinamon on 13/07/16.
  */
 
-public abstract class LoadProducer extends Thread {
+public class LoadProducer extends Thread {
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
@@ -35,5 +35,7 @@ public abstract class LoadProducer extends Thread {
     }
 
 
-    protected abstract void synchronize() throws Exception;
+    protected void synchronize() throws Exception {
+        // Empty or overridden
+    }
 }

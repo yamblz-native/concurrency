@@ -23,7 +23,7 @@ public class PostConsumer extends Thread {
 
         try {
             synchronize();
-        } catch (InterruptedException ignored) { /* */ }
+        } catch (Exception ignored) { /* */ }
 
         onFinish.run();
     }
