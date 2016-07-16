@@ -84,6 +84,12 @@ public class ContentFragment extends BaseFragment {
     }
 
 
+    @OnClick(R.id.exchanger)
+    public void exchangerImpl() {
+        syncBuilder.build(Type.EXCHANGER).sync();
+    }
+
+
     @OnClick(R.id.join)
     public void joinImpl() {
         syncBuilder.build(Type.JOIN).sync();

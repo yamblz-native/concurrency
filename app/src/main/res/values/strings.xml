@@ -9,5 +9,6 @@
     <string name="count_down_latch">CountDownLatch</string>
     <string name="cyclic_barrier">CyclicBarrier</string>
     <string name="phaser">Phaser</string>
+    <string name="exchanger">Exchanger</string>
     <string name="join">join()</string>
 </resources>
