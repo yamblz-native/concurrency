@@ -18,11 +18,13 @@ public class SemaphoreImpl extends Synchronizer {
 
 
     @Override
-    protected void customSync() throws InterruptedException {
+    protected void customSync() {
         Semaphore semaphore = new Semaphore(PRODUCERS_COUNT);
 
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            semaphore.acquire();
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException ignored) { /* */ }
             new Producer(params.dataResults, params.postResult, semaphore).start();
         }
 

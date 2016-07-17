@@ -1,5 +1,6 @@
 package ru.yandex.yamblz.concurrency.sync.impl;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -40,7 +41,7 @@ public class FutureImpl extends Synchronizer {
         }
 
         @Override
-        protected void synchronize() throws Exception {
+        protected void synchronize() throws ExecutionException, InterruptedException {
             for (Future<?> future : futures) {
                 future.get();
             }
