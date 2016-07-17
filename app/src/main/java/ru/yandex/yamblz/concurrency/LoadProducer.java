@@ -4,6 +4,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Set;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+import ru.yandex.yamblz.ui.fragments.ContentFragment;
 
 /**
  * Simple load producer thread; non-extensible
@@ -36,6 +40,13 @@ public final class LoadProducer extends Thread {
 
         Log.d("Producer", "Producer finished working, results size = " + results.size());
         onResult.run();
+
+        try {
+            ContentFragment.CYCLIC_BARRIER.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+        }
+
 
     }
 }

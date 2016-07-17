@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -34,6 +35,9 @@ public class ContentFragment extends BaseFragment {
     @NonNull
     private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
+    public static CyclicBarrier CYCLIC_BARRIER;
+
+
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -45,9 +49,13 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        new PostConsumer(this::postFinish).start();
+        // CyclicBarrier предназначен для того, чтобы подождать, пока несколько потоков соберутся
+        // в некоторой "точке сбора" и затем, если указано, выполнить некий runnable. В данном случае
+        // в роли runnable-действия можно взять старт PostConsumer'a.
+
+        CYCLIC_BARRIER = new CyclicBarrier(PRODUCERS_COUNT, () -> new PostConsumer(this::postFinish).start());
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult).start();
         }
 
     }
