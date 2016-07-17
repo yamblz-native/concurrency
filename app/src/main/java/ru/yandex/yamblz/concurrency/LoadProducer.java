@@ -25,8 +25,6 @@ public class LoadProducer extends Thread {
     public void run() {
         super.run();
 
-        acquire();
-
         results.add(new DownloadLatch().doWork());
 
         onResult.run();
@@ -34,11 +32,6 @@ public class LoadProducer extends Thread {
         try {
             synchronize();
         } catch (Exception ignored) { /* */ }
-    }
-
-
-    protected void acquire() {
-        // Empty or overridden
     }
 
 
