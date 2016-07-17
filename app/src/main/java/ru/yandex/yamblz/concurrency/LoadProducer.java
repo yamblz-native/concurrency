@@ -3,24 +3,21 @@ package ru.yandex.yamblz.concurrency;
 import android.support.annotation.NonNull;
 
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 /**
- * Simple load producer thread; non-extensible
+ * Simple load producer thread; non-extensible. Oops!
  *
  * @author archinamon on 13/07/16.
  */
 
-public final class LoadProducer extends Thread {
+public class LoadProducer extends Thread {
 
-    @NonNull private final Set<String> results;
+    @NonNull protected final Set<String> results;
     @NonNull private final Runnable onResult;
-    @NonNull private final CountDownLatch countDownLatch;
 
-    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult, @NonNull CountDownLatch countDownLatch) {
+    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
         this.results = resultSet;
         this.onResult = onResult;
-        this.countDownLatch = countDownLatch;
     }
 
 
@@ -28,10 +25,24 @@ public final class LoadProducer extends Thread {
     public void run() {
         super.run();
 
+        acquire();
+
         results.add(new DownloadLatch().doWork());
 
         onResult.run();
 
-        countDownLatch.countDown();
+        try {
+            synchronize();
+        } catch (Exception ignored) { /* */ }
+    }
+
+
+    protected void acquire() {
+        // Empty or overridden
+    }
+
+
+    protected void synchronize() throws Exception {
+        // Empty or overridden
     }
 }
