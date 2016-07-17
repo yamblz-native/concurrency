@@ -5,6 +5,8 @@ import android.util.Log;
 
 import java.util.Calendar;
 
+import ru.yandex.yamblz.ui.fragments.ContentFragment;
+
 /**
  * Simple result consumer thread; non-extensible
  *
@@ -26,7 +28,6 @@ public final class PostConsumer extends Thread {
 
         Log.d("Consumer", "Consumer start");
 
-         /* Synchronize via concurrent mechanics */
 
         Log.d("Consumer", "Running onFinish");
         onFinish.run();

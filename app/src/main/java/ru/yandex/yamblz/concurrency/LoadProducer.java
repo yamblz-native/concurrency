@@ -21,11 +21,13 @@ public final class LoadProducer extends Thread {
     private final Set<String> results;
     @NonNull
     private final Runnable onResult;
+    private PostConsumer consumer;
 
 
-    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
+    public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult, PostConsumer consumer) {
         this.results = resultSet;
         this.onResult = onResult;
+        this.consumer = consumer;
     }
 
     @Override
@@ -35,16 +37,21 @@ public final class LoadProducer extends Thread {
 
         /* Synchronize via concurrent mechanics */
 
+        try {
+            ContentFragment.SEMAPHORE.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         final String result = new DownloadLatch().doWork();
         results.add(result);
 
         Log.d("Producer", "Producer finished working, results size = " + results.size());
         onResult.run();
+        ContentFragment.SEMAPHORE.release();
 
-        try {
-            ContentFragment.CYCLIC_BARRIER.await();
-        } catch (InterruptedException | BrokenBarrierException e) {
-            e.printStackTrace();
+        if (ContentFragment.PRODUCERS_COUNT == results.size()) {
+            consumer.start();
         }
 
 

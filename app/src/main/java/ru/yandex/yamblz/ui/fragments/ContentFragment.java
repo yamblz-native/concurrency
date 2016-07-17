@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -25,7 +26,7 @@ public class ContentFragment extends BaseFragment {
 
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
-    private static final int PRODUCERS_COUNT = 5;
+    public static final int PRODUCERS_COUNT = 5;
 
     private long startTime, endTime;
 
@@ -35,7 +36,7 @@ public class ContentFragment extends BaseFragment {
     @NonNull
     private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    public static CyclicBarrier CYCLIC_BARRIER;
+    public static Semaphore SEMAPHORE = new Semaphore(1, true);
 
 
     @NonNull
@@ -49,14 +50,18 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        // CyclicBarrier предназначен для того, чтобы подождать, пока несколько потоков соберутся
-        // в некоторой "точке сбора" и затем, если указано, выполнить некий runnable. В данном случае
-        // в роли runnable-действия можно взять старт PostConsumer'a.
+        // Semaphore не слишком подходит для решения данной задачи, и другие разработчики могут быть
+        // немного удивлены вашим выбором, хотя и не слишком сильно.
+        // Для решения данной задачи через семафор можно ограничить доступ к ресурсу и позваолить
+        // только одному потоку одновременно выполняться. Но в этом случае решение будет последовательным
+        // и очень медленным. Не надо так.
+        // Кроме того, нет гарантии, что потоки будут выполнены именно в той последовательности,
+        // в которой они были созданы, а значит, нужно вводить дополнительную логику.
 
-        CYCLIC_BARRIER = new CyclicBarrier(PRODUCERS_COUNT, () -> new PostConsumer(this::postFinish).start());
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult).start();
+            new LoadProducer(dataResults, this::postResult, new PostConsumer(this::postFinish)).start();
         }
+
 
     }
 
