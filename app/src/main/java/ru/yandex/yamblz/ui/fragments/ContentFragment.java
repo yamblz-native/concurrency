@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -27,6 +30,11 @@ public class ContentFragment extends BaseFragment {
     private static final int PRODUCERS_COUNT = 5;
 
     private long startTime, endTime;
+
+    // Итого, наиболее подходящим вариантом для решения данной задачи, является CountDownLatch,как и было предположено
+    // в самом начале.
+    public static final CountDownLatch LATCH = new CountDownLatch(PRODUCERS_COUNT);
+
 
     @BindView(R.id.hello)
     TextView helloView;
@@ -45,10 +53,17 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         startTime = System.nanoTime();
 
-        new PostConsumer(this::postFinish).start();
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+        if (dataResults.size() < PRODUCERS_COUNT) {
+            new PostConsumer(this::postFinish).start();
+            for (int i = 0; i < PRODUCERS_COUNT; i++) {
+                new LoadProducer(dataResults, this::postResult).start();
+            }
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
 
     }
 
@@ -70,7 +85,6 @@ public class ContentFragment extends BaseFragment {
         runOnUiThreadIfFragmentAlive(() -> {
             assert helloView != null;
             helloView.setText(R.string.task_win);
-
         });
     }
 }
