@@ -1,8 +1,10 @@
 package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Set;
+import java.util.concurrent.BrokenBarrierException;
 
 /**
  * Simple load producer thread; non-extensible. Oops!
@@ -11,6 +13,7 @@ import java.util.Set;
  */
 
 public class LoadProducer extends Thread {
+    private static final String TAG = LoadProducer.class.getSimpleName();
 
     @NonNull protected final Set<String> results;
     @NonNull private final Runnable onResult;
@@ -25,24 +28,19 @@ public class LoadProducer extends Thread {
     public void run() {
         super.run();
 
-        acquire();
-
         results.add(new DownloadLatch().doWork());
 
         onResult.run();
 
         try {
             synchronize();
-        } catch (Exception ignored) { /* */ }
+        } catch (InterruptedException | BrokenBarrierException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
     }
 
 
-    protected void acquire() {
-        // Empty or overridden
-    }
-
-
-    protected void synchronize() throws Exception {
+    protected void synchronize() throws InterruptedException, BrokenBarrierException {
         // Empty or overridden
     }
 }

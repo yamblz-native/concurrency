@@ -1,6 +1,9 @@
 package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Simple result consumer thread; non-extensible. Oops!
@@ -9,6 +12,7 @@ import android.support.annotation.NonNull;
  */
 
 public class PostConsumer extends Thread {
+    private static final String TAG = PostConsumer.class.getSimpleName();
 
     @NonNull private final Runnable onFinish;
 
@@ -23,13 +27,15 @@ public class PostConsumer extends Thread {
 
         try {
             synchronize();
-        } catch (Exception ignored) { /* */ }
+        } catch (InterruptedException | ExecutionException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
 
         onFinish.run();
     }
 
 
-    protected void synchronize() throws Exception {
+    protected void synchronize() throws InterruptedException, ExecutionException {
         // Empty or overridden
     }
 }

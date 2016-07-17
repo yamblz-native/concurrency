@@ -1,6 +1,7 @@
 package ru.yandex.yamblz.concurrency.sync.impl;
 
 import java.util.Set;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import ru.yandex.yamblz.concurrency.LoadProducer;
@@ -18,7 +19,7 @@ public class CyclicBarrierImpl extends Synchronizer {
 
 
     @Override
-    protected void customSync() throws InterruptedException {
+    protected void customSync() {
         CyclicBarrier cyclicBarrier = new CyclicBarrier(PRODUCERS_COUNT, new PostConsumer(params.postFinish));
 
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
@@ -36,7 +37,7 @@ public class CyclicBarrierImpl extends Synchronizer {
         }
 
         @Override
-        public void synchronize() throws Exception {
+        public void synchronize() throws BrokenBarrierException, InterruptedException {
             cyclicBarrier.await();
         }
     }

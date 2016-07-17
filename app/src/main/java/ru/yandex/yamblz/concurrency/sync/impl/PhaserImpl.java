@@ -26,7 +26,7 @@ public class PhaserImpl extends Synchronizer {
 
 
     @Override
-    protected void customSync() throws InterruptedException {
+    protected void customSync() {
 
         if (SDK_INT < LOLLIPOP) {
             Toast.makeText(App.get(params.rootView.getContext()), R.string.not_supported, Toast.LENGTH_SHORT).show();
@@ -52,7 +52,7 @@ public class PhaserImpl extends Synchronizer {
         }
 
         @Override
-        public void synchronize() throws Exception {
+        public void synchronize() {
             phaser.arriveAndDeregister();
         }
     }
@@ -67,7 +67,7 @@ public class PhaserImpl extends Synchronizer {
         }
 
         @Override
-        protected void synchronize() throws InterruptedException {
+        protected void synchronize() {
             phaser.awaitAdvance(phaser.getPhase());
         }
     }
