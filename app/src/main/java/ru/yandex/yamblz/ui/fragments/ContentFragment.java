@@ -37,21 +37,46 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult).start();
         }
     }
 
     final void postResult() {
         assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(String.valueOf(dataResults.size()));
+            }
+        });
+
+        synchronized (dataResults) {
+            dataResults.notify();
+        }
     }
 
     final void postFinish() {
+
+        synchronized (dataResults) {
+            while (dataResults.size() < PRODUCERS_COUNT) {
+                try {
+                    dataResults.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
         assert helloView != null;
-        helloView.setText(R.string.task_win);
+        runOnUiThreadIfFragmentAlive(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(R.string.task_win);
+            }
+        });
     }
 }
