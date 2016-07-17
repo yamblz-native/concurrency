@@ -1,15 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/hello"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/content"
-        android:textSize="42sp"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        />
+        android:padding="10dp"
+        android:text="@string/content"
+        android:textSize="42sp" />
 
-</FrameLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/btn_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/semaphore"
+                style="@style/Button"
+                android:text="@string/semaphore" />
+
+            <Button
+                android:id="@+id/count_down_latch"
+                style="@style/Button"
+                android:text="@string/count_down_latch" />
+
+            <Button
+                android:id="@+id/cyclic_barrier"
+                style="@style/Button"
+                android:text="@string/cyclic_barrier" />
+
+            <Button
+                android:id="@+id/phaser"
+                style="@style/Button"
+                android:text="@string/phaser" />
+
+            <Button
+                android:id="@+id/exchanger"
+                style="@style/Button"
+                android:text="@string/exchanger" />
+
+            <Button
+                android:id="@+id/blocking_queue"
+                style="@style/Button"
+                android:text="@string/blocking_queue" />
+
+            <Button
+                android:id="@+id/future"
+                style="@style/Button"
+                android:text="@string/future" />
+
+            <Button
+                android:id="@+id/lock"
+                style="@style/Button"
+                android:text="@string/lock" />
+
+            <Button
+                android:id="@+id/join"
+                style="@style/Button"
+                android:text="@string/join" />
+
+            <Button
+                android:id="@+id/wait_notify"
+                style="@style/Button"
+                android:text="@string/wait_notify" />
+
+            <Button
+                android:id="@+id/sleep_interrupt"
+                style="@style/Button"
+                android:text="@string/sleep_interrupt" />
+
+            <Button
+                android:id="@+id/uncaught_exception_handler"
+                style="@style/Button"
+                android:text="@string/uncaught_exception_handler" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

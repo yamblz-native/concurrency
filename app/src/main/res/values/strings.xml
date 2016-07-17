@@ -1,6 +1,20 @@
 <resources>
-    <string name="app_name">Yamblz</string>
+    <string name="app_name">Concurrency HW</string>
     <string name="content">Hello</string>
 
     <string name="task_win">WIN!!</string>
+    <string name="not_supported">Not supported</string>
+
+    <string name="semaphore">Semaphore</string>
+    <string name="count_down_latch">CountDownLatch</string>
+    <string name="cyclic_barrier">CyclicBarrier</string>
+    <string name="phaser">Phaser</string>
+    <string name="exchanger">Exchanger</string>
+    <string name="blocking_queue">BlockingQueue</string>
+    <string name="future">Future</string>
+    <string name="lock">Lock</string>
+    <string name="join">join()</string>
+    <string name="wait_notify">wait() &amp; notify()</string>
+    <string name="sleep_interrupt">sleep() &amp; interrupt()</string>
+    <string name="uncaught_exception_handler">UncaughtExceptionHandler</string>
 </resources>
