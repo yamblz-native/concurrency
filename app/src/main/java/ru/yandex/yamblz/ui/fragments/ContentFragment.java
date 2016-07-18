@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import butterknife.BindView;
 import ru.yandex.yamblz.R;
@@ -30,7 +31,7 @@ public class ContentFragment extends BaseFragment {
 
     @BindView(R.id.hello) TextView helloView;
 
-    @NonNull private final Set<String> dataResults = new LinkedHashSet<>();
+    @NonNull private final Set<String> dataResults = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     @NonNull
     @Override

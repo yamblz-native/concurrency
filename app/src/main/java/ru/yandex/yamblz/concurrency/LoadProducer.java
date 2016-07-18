@@ -30,10 +30,10 @@ public final class LoadProducer extends Thread {
         /* Synchronize via concurrent mechanics */
 
         final String result = new DownloadLatch().doWork();
-        synchronized (this.results) {
-            results.add(result);
-            onResult.run();
-        }
+
+        results.add(result);
+        onResult.run();
+
         Log.i(LOG_TAG, "Thread " + String.valueOf(this.getId()) + " finished");
     }
 }
