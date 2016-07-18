@@ -1,6 +1,7 @@
 package ru.yandex.yamblz.concurrency;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Set;
 
@@ -14,6 +15,7 @@ public final class LoadProducer extends Thread {
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
+    private static String LOG_TAG = "Yamblz:LoadProducer";
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
         this.results = resultSet;
@@ -23,12 +25,15 @@ public final class LoadProducer extends Thread {
     @Override
     public void run() {
         super.run();
+        Log.i(LOG_TAG, "Thread " + String.valueOf(this.getId()) + " is running");
 
         /* Synchronize via concurrent mechanics */
 
         final String result = new DownloadLatch().doWork();
-        results.add(result);
 
+        results.add(result);
         onResult.run();
+
+        Log.i(LOG_TAG, "Thread " + String.valueOf(this.getId()) + " finished");
     }
 }
