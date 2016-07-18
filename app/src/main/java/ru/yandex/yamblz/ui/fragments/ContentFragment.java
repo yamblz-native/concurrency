@@ -9,7 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -38,15 +41,23 @@ public class ContentFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         Log.i(LOG_TAG, "onResume");
-//        new PostConsumer(this::postFinish).start();
-//        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-//            new LoadProducer(dataResults, this::postResult);
-//        }
+        List<LoadProducer> producerList = new ArrayList<>(PRODUCERS_COUNT);
+        for (int i = 0; i < PRODUCERS_COUNT; i++) {
+            LoadProducer producer = new LoadProducer(dataResults, this::postResult);
+            producerList.add(producer);
+            producer.start();
+        }
+        new PostConsumer(this::postFinish, producerList).start();
     }
 
     final void postResult() {
-        assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+//        assert helloView != null;
+        runOnUiThreadIfFragmentAlive(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(String.valueOf(dataResults.size()));
+            }
+        });
     }
 
     final void postFinish() {
@@ -54,7 +65,13 @@ public class ContentFragment extends BaseFragment {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
-        assert helloView != null;
-        helloView.setText(R.string.task_win);
+//        assert helloView != null;
+        runOnUiThreadIfFragmentAlive(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(R.string.task_win);
+            }
+        });
+
     }
 }
