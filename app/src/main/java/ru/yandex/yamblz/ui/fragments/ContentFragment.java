@@ -3,6 +3,7 @@ package ru.yandex.yamblz.ui.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
+    private static final String LOG_TAG = "ContentFragment";
 
     @BindView(R.id.hello) TextView helloView;
 
@@ -35,10 +37,11 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        new PostConsumer(this::postFinish).start();
-        for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
-        }
+        Log.i(LOG_TAG, "onResume");
+//        new PostConsumer(this::postFinish).start();
+//        for (int i = 0; i < PRODUCERS_COUNT; i++) {
+//            new LoadProducer(dataResults, this::postResult);
+//        }
     }
 
     final void postResult() {
