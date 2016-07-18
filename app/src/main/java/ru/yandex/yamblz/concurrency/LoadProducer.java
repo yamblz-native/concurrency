@@ -15,7 +15,7 @@ public final class LoadProducer extends Thread {
 
     @NonNull private final Set<String> results;
     @NonNull private final Runnable onResult;
-    private static String LOG_TAG = "LoadProducer";
+    private static String LOG_TAG = "Yamblz:LoadProducer";
 
     public LoadProducer(@NonNull Set<String> resultSet, @NonNull Runnable onResult) {
         this.results = resultSet;
@@ -34,5 +34,6 @@ public final class LoadProducer extends Thread {
             results.add(result);
             onResult.run();
         }
+        Log.i(LOG_TAG, "Thread " + String.valueOf(this.getId()) + " finished");
     }
 }

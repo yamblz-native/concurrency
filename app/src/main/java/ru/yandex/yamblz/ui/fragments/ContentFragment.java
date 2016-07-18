@@ -25,7 +25,8 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final int PRODUCERS_COUNT = 5;
-    private static final String LOG_TAG = "ContentFragment";
+    private static final String LOG_TAG = "Yamblz:ContentFragment";
+    private PostConsumer postConsumer = null;
 
     @BindView(R.id.hello) TextView helloView;
 
@@ -34,6 +35,7 @@ public class ContentFragment extends BaseFragment {
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.i(LOG_TAG, "onCreateView");
         return inflater.inflate(R.layout.fragment_content, container, false);
     }
 
@@ -47,7 +49,15 @@ public class ContentFragment extends BaseFragment {
             producerList.add(producer);
             producer.start();
         }
-        new PostConsumer(this::postFinish, producerList).start();
+        postConsumer = new PostConsumer(this::postFinish, producerList);
+        postConsumer.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i(LOG_TAG, "onPause");
+        postConsumer.interrupt();
     }
 
     final void postResult() {

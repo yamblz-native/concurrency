@@ -15,21 +15,17 @@ public final class PostConsumer extends Thread {
 
     @NonNull private final Runnable onFinish;
     @NonNull private final List<LoadProducer> producerList;
-    private static String LOG_TAG = "PostConsumer";
+    private static String LOG_TAG = "Yamblz:PostConsumer";
 
     public PostConsumer(@NonNull Runnable onFinish, List<LoadProducer> producerList) {
         this.onFinish = onFinish;
         this.producerList = producerList;
     }
 
-    private void waitForAllTasks() {
+    private void waitForAllTasks() throws InterruptedException {
         for (LoadProducer producer : producerList) {
-            try {
-                producer.join();
-                Log.i(LOG_TAG, "Thread " + String.valueOf(producer.getId()) + " finished");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            producer.join();
+            Log.i(LOG_TAG, "Thread " + String.valueOf(producer.getId()) + " joined");
         }
     }
 
@@ -38,7 +34,12 @@ public final class PostConsumer extends Thread {
         super.run();
 
         /* Synchronize via concurrent mechanics */
-        waitForAllTasks();
+        try {
+            waitForAllTasks();
+        } catch (InterruptedException e) {
+            Log.i(LOG_TAG, "PostConsumer was interrupted");
+            return;
+        }
         onFinish.run();
     }
 }
