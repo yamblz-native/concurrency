@@ -10,21 +10,11 @@ import android.widget.TextView;
 public class AndroidUtils {
 
     public static void setText(Activity activity, TextView textView, String str) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textView.setText(str);
-            }
-        });
+        activity.runOnUiThread(() -> textView.setText(str));
     }
 
     public static void setText(Activity activity, TextView textView, int resId) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                textView.setText(resId);
-            }
-        });
+        activity.runOnUiThread(() -> textView.setText(resId));
     }
 
 }

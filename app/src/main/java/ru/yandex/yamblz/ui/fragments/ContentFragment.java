@@ -1,15 +1,18 @@
 package ru.yandex.yamblz.ui.fragments;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,6 +21,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CyclicBarrier;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import icepick.Icepick;
+import icepick.State;
 import ru.yandex.yamblz.R;
 import ru.yandex.yamblz.concurrency.LoadProducer;
 import ru.yandex.yamblz.concurrency.PostConsumer;
@@ -30,37 +36,24 @@ public class ContentFragment extends BaseFragment {
 
     private static final String CONSUME_EXCEPTION = "Some producers not finished yet!";
     private static final String LOG_TAG = "synchronization";
-    private static final String DATA_RESULTS_KEY = "ru.yandex.yamblz.ui.fragments.ContentFragment.dataResults";
-    private static final String IS_DONE_KEY = "ru.yandex.yamblz.ui.fragments.ContentFragment.isDone";
     private static final int PRODUCERS_COUNT = 5;
 
     @BindView(R.id.hello) TextView helloView;
 
-    /**
-     * Changed dataResults to CopyOnWrite ArraySet to avoid 'final'qualifier. It's necessary
-     * to save and recovery data from Bundle.
-     */
-    @NonNull private CopyOnWriteArraySet<String> dataResults;
-
     @NonNull private CyclicBarrier cyclicBarrier;
 
-    private BooleanCondition isDone = new BooleanCondition(false);
+    @State @NonNull CopyOnWriteArraySet<String> dataResults;
+    @State BooleanCondition isDone = new BooleanCondition(false);
+
+    @Nullable private static WeakReference<ContentFragment> actualInstance;
 
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        if(savedInstanceState != null) {
-            if (savedInstanceState.getSerializable(DATA_RESULTS_KEY) != null) {
-                dataResults = (CopyOnWriteArraySet<String>) savedInstanceState.getSerializable(DATA_RESULTS_KEY);
-            }
-
-            if(savedInstanceState.getSerializable(IS_DONE_KEY) != null) {
-                isDone = (BooleanCondition) savedInstanceState.getSerializable(IS_DONE_KEY);
-            }
-        }
-
-        return inflater.inflate(R.layout.fragment_content, container, false);
+        View view = inflater.inflate(R.layout.fragment_content, container, false);
+        Icepick.restoreInstanceState(this, savedInstanceState);
+        actualInstance = new WeakReference<>(this);
+        return view;
     }
 
     @Override
@@ -119,23 +112,18 @@ public class ContentFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        outState.putSerializable(DATA_RESULTS_KEY, dataResults);
-        outState.putSerializable(IS_DONE_KEY, isDone);
+        Icepick.saveInstanceState(this, outState);
     }
 
     private void setFinishText() {
-
-        if(helloView != null) {
-            setText(getActivity(), helloView, R.string.task_win);
+        if(actualInstance.get() != null) {
+            setText(actualInstance.get().getActivity(), actualInstance.get().helloView, R.string.task_win);
         }
     }
 
     private void setResultText() {
-
-        if(helloView != null) {
-            setText(getActivity(), helloView, String.valueOf(dataResults.size()));
+        if(actualInstance.get() != null) {
+            setText(actualInstance.get().getActivity(), actualInstance.get().helloView, String.valueOf(dataResults.size()));
         }
     }
-
 }
