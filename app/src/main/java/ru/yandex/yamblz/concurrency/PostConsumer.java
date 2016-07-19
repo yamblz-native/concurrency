@@ -27,12 +27,11 @@ public final class PostConsumer extends Thread {
         try
         {
             countDownLatch.await();
+            onFinish.run();
         }
         catch (InterruptedException e)
         {
             e.printStackTrace();
         }
-
-        new Thread(onFinish).start();
     }
 }

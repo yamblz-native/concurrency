@@ -30,7 +30,7 @@ public final class LoadProducer extends Thread {
 
         final String result = new DownloadLatch().doWork();
         results.add(result);
-        new Thread(onResult).start();
+        onResult.run();
         countDownLatch.countDown();
     }
 }
