@@ -3,6 +3,7 @@ package ru.yandex.yamblz.ui.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,21 +38,49 @@ public class ContentFragment extends BaseFragment {
         super.onResume();
         new PostConsumer(this::postFinish).start();
         for (int i = 0; i < PRODUCERS_COUNT; i++) {
-            new LoadProducer(dataResults, this::postResult);
+            new LoadProducer(dataResults, this::postResult).start();
         }
     }
 
+    @WorkerThread
     final void postResult() {
         assert helloView != null;
-        helloView.setText(String.valueOf(dataResults.size()));
+        runOnUiThreadIfFragmentAlive(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(String.valueOf(dataResults.size()));
+            }
+        });
+
+        synchronized (dataResults) {
+            dataResults.notify();
+        }
     }
 
+
+    @WorkerThread
     final void postFinish() {
+
+        synchronized (dataResults) {
+            while (dataResults.size() < PRODUCERS_COUNT) {
+                try {
+                    dataResults.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         if (dataResults.size() < PRODUCERS_COUNT) {
             throw new RuntimeException(CONSUME_EXCEPTION);
         }
 
         assert helloView != null;
-        helloView.setText(R.string.task_win);
+        runOnUiThreadIfFragmentAlive(new Runnable() {
+            @Override
+            public void run() {
+                helloView.setText(R.string.task_win);
+            }
+        });
     }
 }
