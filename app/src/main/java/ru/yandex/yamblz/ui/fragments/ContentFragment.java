@@ -3,6 +3,7 @@ package ru.yandex.yamblz.ui.fragments;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ public class ContentFragment extends BaseFragment {
         }
     }
 
+    @WorkerThread
     final void postResult() {
         assert helloView != null;
         runOnUiThreadIfFragmentAlive(new Runnable() {
@@ -55,6 +57,8 @@ public class ContentFragment extends BaseFragment {
         }
     }
 
+
+    @WorkerThread
     final void postFinish() {
 
         synchronized (dataResults) {
