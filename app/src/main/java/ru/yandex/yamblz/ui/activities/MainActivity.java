@@ -29,7 +29,7 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.main_frame_layout, new ContentFragment())
+                    .replace(R.id.main_frame_layout, new ContentFragment(), ContentFragment.class.getCanonicalName())
                     .commit();
         }
     }
